@@ -1,0 +1,151 @@
+{
+  "name": "🗺️ LeadLove Maps - Enhanced Dual-Input Lead Generator",
+  "version": "2.0.0",
+  "description": "Multi-channel lead generation with Telegram bot and web frontend support",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "telegram-trigger-001",
+      "name": "Telegram Business Search Trigger",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "webhookId": "business-search-bot",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "leadlove-frontend",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {
+          "cors": {
+            "credentials": true,
+            "origin": "https://leadlove-maps.lovable.app"
+          }
+        }
+      },
+      "id": "frontend-webhook-001",
+      "name": "Frontend Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 500],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced Multi-Channel Input Parser\n// Handles both Telegram and Lovable frontend inputs\n\nconst inputData = $json;\nlet parsedData = {};\n\n// Detect input source and parse accordingly\nif (inputData.body?.message?.text) {\n  // Telegram input (existing logic)\n  const message = inputData.body.message.text.toLowerCase();\n  const chatId = inputData.body.message.chat.id;\n  const userId = inputData.body.message.from.id;\n  const userName = inputData.body.message.from.first_name || 'User';\n  \n  // Parse message logic from existing workflow\n  let businessType = '';\n  let city = '';\n  let countryCode = 'us';\n  let serviceOffering = '';\n  \n  // Enhanced pattern matching for service offerings\n  let cleanMessage = message;\n  \n  if (message.includes(' for ')) {\n    const parts = message.split(' for ');\n    cleanMessage = parts[0];\n    serviceOffering = parts[1].trim();\n  } else if (message.includes(' - ')) {\n    const parts = message.split(' - ');\n    cleanMessage = parts[0];\n    serviceOffering = parts[1].trim();\n  }\n  \n  // Parse business type and location\n  if (cleanMessage.includes(' in ')) {\n    const parts = cleanMessage.split(' in ');\n    businessType = parts[0].trim();\n    city = parts[1].trim();\n  } else {\n    const words = cleanMessage.split(' ');\n    businessType = words[0] || 'restaurant';\n    city = words[1] || 'San Francisco';\n  }\n  \n  // Clean up formatting\n  businessType = businessType.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\n  city = city.replace(/[^a-zA-Z0-9\\s,]/g, '').trim();\n  serviceOffering = serviceOffering.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\n  \n  parsedData = {\n    chatId: chatId,\n    userId: userId,\n    userName: userName,\n    originalMessage: message,\n    businessType: businessType,\n    city: city,\n    countryCode: countryCode,\n    serviceOffering: serviceOffering || 'digital marketing',\n    source: 'telegram'\n  };\n  \n} else if (inputData.businessType && inputData.location) {\n  // Frontend input from Lovable app\n  parsedData = {\n    chatId: `lovable-${Date.now()}`,\n    userId: inputData.userId || 'lovable-user',\n    userName: inputData.userName || 'Lovable User',\n    originalMessage: `${inputData.businessType} in ${inputData.location} for ${inputData.serviceOffering}`,\n    businessType: inputData.businessType,\n    city: inputData.location,\n    countryCode: inputData.countryCode || 'us',\n    serviceOffering: inputData.serviceOffering || 'digital marketing',\n    maxResults: inputData.maxResults || 20,\n    source: 'lovable-frontend'\n  };\n}\n\n// Add common fields\nparsedData.timestamp = new Date().toISOString();\nparsedData.workflowId = `wf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;\nparsedData.searchQuery = `${parsedData.businessType} ${parsedData.city}`;\n\n// Generate service descriptions\nconst serviceMap = {\n  'digital marketing': 'comprehensive digital marketing services including SEO, social media management, and online advertising to grow your business',\n  'voice ai': 'AI-powered voice automation solutions for customer service, appointment booking, and phone call management',\n  'website development': 'professional website design and development services to create a modern, conversion-focused online presence'\n};\n\nparsedData.serviceDescription = serviceMap[parsedData.serviceOffering] || 'digital marketing services to help grow your business online and attract more customers';\n\nreturn { json: parsedData };"
+      },
+      "id": "multi-channel-parser-001",
+      "name": "Enhanced Multi-Channel Parser",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "source-check",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "telegram",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "source-router-001",
+      "name": "Source Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "🎯 **AI Lead Generation Started!**\\n\\n🔍 **Searching:** {{ $json.businessType }} in {{ $json.city }}\\n💼 **Service:** {{ $json.serviceOffering }}\\n\\n⏳ *Processing with AI enrichment...*\\n⏱️ *This will take 2-3 minutes*\\n\\n🤖 I'll gather business data, analyze opportunities, and create personalized outreach messages for you!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-confirmation-001",
+      "name": "Send Telegram Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [900, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"workflowId\": $json.workflowId, \"message\": \"Lead generation started successfully\", \"estimatedTime\": \"2-3 minutes\" } }}"
+      },
+      "id": "frontend-response-001",
+      "name": "Frontend Response",
+      "type": "n8n-nodes-base.respond",
+      "typeVersion": 1,
+      "position": [900, 500]
+    }
+  ],
+  "connections": {
+    "Telegram Business Search Trigger": {
+      "main": [["Enhanced Multi-Channel Parser"]]
+    },
+    "Frontend Webhook Trigger": {
+      "main": [["Enhanced Multi-Channel Parser"]]
+    },
+    "Enhanced Multi-Channel Parser": {
+      "main": [["Source Router"]]
+    },
+    "Source Router": {
+      "main": [
+        ["Send Telegram Confirmation"],
+        ["Frontend Response"]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": [
+    {
+      "id": "dual-input",
+      "name": "Dual Input"
+    },
+    {
+      "id": "enhanced-workflow",
+      "name": "Enhanced Workflow"
+    },
+    {
+      "id": "leadlove-maps",
+      "name": "LeadLove Maps"
+    }
+  ]
+}

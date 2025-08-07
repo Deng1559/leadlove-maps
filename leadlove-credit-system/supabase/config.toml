@@ -1,0 +1,106 @@
+# Supabase configuration for LeadLove Maps Credit System
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://leadlove-credit-system.vercel.app"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_password_change = true
+
+# Email templates for better user experience
+[auth.email.template.invite]
+subject = "Welcome to LeadLove Maps"
+content_path = "./supabase/templates/invite.html"
+
+[auth.email.template.confirmation]
+subject = "Confirm your LeadLove Maps account"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reset your LeadLove Maps password"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_OAUTH_CLIENT_ID)"
+secret = "env(GOOGLE_OAUTH_CLIENT_SECRET)"
+redirect_uri = "http://localhost:54324/auth/v1/callback"
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost:54321"
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 2500
+pop3_port = 1100
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MB"
+buckets = [
+  { name = "avatars", public = true },
+  { name = "exports", public = false }
+]
+
+[functions]
+enabled = true
+port = 54321
+
+[analytics]
+enabled = true
+port = 54327
+vector_port = 54328
+# Replace with your project ref when deploying
+# project_ref = "your-project-ref"
+
+# Environment variables
+[env]
+SUPABASE_PUBLIC_URL = "http://localhost:54321"
+SUPABASE_ANON_KEY = "your-anon-key-will-be-generated"
+SUPABASE_SERVICE_ROLE_KEY = "your-service-role-key-will-be-generated"
+
+# Stripe configuration for payments
+STRIPE_PUBLISHABLE_KEY = "pk_test_your_stripe_publishable_key"
+STRIPE_SECRET_KEY = "sk_test_your_stripe_secret_key"
+STRIPE_WEBHOOK_SECRET = "whsec_your_webhook_secret"
+
+# Google OAuth for authentication
+GOOGLE_OAUTH_CLIENT_ID = "your-google-client-id"
+GOOGLE_OAUTH_CLIENT_SECRET = "your-google-client-secret"
+
+# n8n integration for LeadLove Maps
+N8N_WEBHOOK_URL = "https://your-n8n-instance.com/webhook"
+N8N_API_KEY = "your-n8n-api-key"
+
+# Rate limiting and usage
+RATE_LIMIT_REQUESTS_PER_HOUR = "100"
+MAX_CREDITS_PER_USER = "10000"
+
+# Feature flags for scaled testing
+ENABLE_SUBSCRIPTION_TIERS = "true"
+ENABLE_CREDIT_PURCHASES = "true"
+STARTER_TIER_CREDITS = "100"
+GROWTH_TIER_CREDITS = "500"

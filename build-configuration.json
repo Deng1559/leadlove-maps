@@ -1,0 +1,78 @@
+{
+  "name": "LeadLove Maps Enhanced Build",
+  "version": "2.0.0",
+  "description": "Dual-input lead generation system with web frontend integration",
+  "buildType": "n8n-workflow-enhanced",
+  "phases": {
+    "phase1": {
+      "name": "Enhanced n8n Workflow",
+      "status": "in-progress",
+      "tasks": [
+        "Add Frontend Webhook Trigger",
+        "Enhanced Multi-Channel Parser",
+        "Update Workflow Connections",
+        "Validate Existing Workflow Integration"
+      ]
+    },
+    "phase2": {
+      "name": "Frontend Integration",
+      "status": "pending",
+      "tasks": [
+        "API Service Integration",
+        "Enhanced Form Handler",
+        "Real-Time Progress Tracking",
+        "Error Handling & Recovery"
+      ]
+    },
+    "phase3": {
+      "name": "Results Display Enhancement",
+      "status": "pending", 
+      "tasks": [
+        "Interactive Results Table",
+        "Export Functionality",
+        "Lead Card Components",
+        "Progress Visualization"
+      ]
+    },
+    "phase4": {
+      "name": "Deployment Configuration",
+      "status": "pending",
+      "tasks": [
+        "Environment Variables Setup",
+        "Vercel/Railway Configuration",
+        "Production Testing",
+        "Performance Optimization"
+      ]
+    }
+  },
+  "dependencies": {
+    "runtime": {
+      "n8n": ">=1.0.0",
+      "node": ">=18.0.0"
+    },
+    "services": {
+      "telegram": "Bot API v6.0+",
+      "apify": "Google Maps Scraper",
+      "openai": "GPT-4 API",
+      "google-sheets": "Sheets API v4"
+    },
+    "frontend": {
+      "lovable-app": "leadlove-maps.lovable.app",
+      "deployment": "vercel|railway"
+    }
+  },
+  "environment": {
+    "required": [
+      "N8N_WEBHOOK_URL",
+      "TELEGRAM_BOT_TOKEN", 
+      "APIFY_TOKEN",
+      "OPENAI_API_KEY",
+      "GOOGLE_SHEETS_CREDENTIALS"
+    ]
+  },
+  "validation": {
+    "workflow": "Enhanced_Google_Maps_Lead_Generator_Warm_Emails.json",
+    "mockData": "Mock_Test_Business_Data.json",
+    "expectedOutput": "Mock_Complete_5_Email_Sequence_Output.json"
+  }
+}

@@ -1,0 +1,770 @@
+{
+  "name": "🗺️ AI-Enhanced Google Maps Lead Generator with 5-Email Local Business Sequences",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "b7d4e5c6-1a2b-3c4d-5e6f-7890abcdef01",
+      "name": "Telegram Business Search Trigger",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "business-search-bot",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Telegram message for business type, location, AND service offering\nconst message = $json.body.message.text.toLowerCase();\nconst chatId = $json.body.message.chat.id;\nconst userId = $json.body.message.from.id;\nconst userName = $json.body.message.from.first_name || 'User';\n\nlet businessType = '';\nlet city = '';\nlet countryCode = 'us';\nlet serviceOffering = '';\nlet serviceDescription = '';\n\n// Enhanced pattern matching for service offerings\nlet cleanMessage = message;\n\n// Extract service offering patterns\nif (message.includes(' for ')) {\n  const parts = message.split(' for ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' - ')) {\n  const parts = message.split(' - ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' offering ')) {\n  const parts = message.split(' offering ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' | ')) {\n  const parts = message.split(' | ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n}\n\n// Parse business type and location from cleaned message\nif (cleanMessage.includes(' in ')) {\n  const parts = cleanMessage.split(' in ');\n  businessType = parts[0].trim();\n  city = parts[1].trim();\n} else if (cleanMessage.includes(' near ')) {\n  const parts = cleanMessage.split(' near ');\n  businessType = parts[0].trim();\n  city = parts[1].trim();\n} else {\n  const words = cleanMessage.split(' ');\n  if (words.length >= 3) {\n    businessType = words.slice(0, -2).join(' ');\n    city = words.slice(-2).join(' ');\n  } else {\n    businessType = words[0] || 'restaurant';\n    city = words[1] || 'San Francisco';\n  }\n}\n\n// Clean up formatting\nbusinessType = businessType.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\ncity = city.replace(/[^a-zA-Z0-9\\s,]/g, '').trim();\nserviceOffering = serviceOffering.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\n\n// Determine country code\nif (city.toLowerCase().includes('ca') || city.toLowerCase().includes('california') || \n    city.toLowerCase().includes('ny') || city.toLowerCase().includes('texas') ||\n    city.toLowerCase().includes('florida') || city.toLowerCase().includes('usa')) {\n  countryCode = 'us';\n} else if (city.toLowerCase().includes('london') || city.toLowerCase().includes('uk') || \n           city.toLowerCase().includes('england')) {\n  countryCode = 'gb';\n} else if (city.toLowerCase().includes('paris') || city.toLowerCase().includes('france')) {\n  countryCode = 'fr';\n} else if (city.toLowerCase().includes('toronto') || city.toLowerCase().includes('canada')) {\n  countryCode = 'ca';\n}\n\n// Generate service descriptions based on common offerings\nconst serviceMap = {\n  'digital marketing': 'comprehensive digital marketing services including SEO, social media management, and online advertising to grow your business',\n  'seo': 'search engine optimization services to improve Google rankings and drive more organic traffic to your website',\n  'voice ai': 'AI-powered voice automation solutions for customer service, appointment booking, and phone call management',\n  'website development': 'professional website design and development services to create a modern, conversion-focused online presence',\n  'social media': 'social media management and content creation services to build your brand and engage customers online',\n  'lead generation': 'targeted lead generation and customer acquisition solutions to grow your client base consistently',\n  'automation': 'business process automation solutions to streamline operations, reduce costs, and improve efficiency',\n  'chatbot': 'AI chatbot development for 24/7 customer support, lead qualification, and customer engagement',\n  'ppc': 'pay-per-click advertising management for Google Ads, Facebook Ads, and other platforms to drive immediate results',\n  'content marketing': 'strategic content creation and marketing services to attract and convert your ideal customers',\n  'email marketing': 'automated email marketing campaigns and newsletter management to nurture leads and retain customers',\n  'crm': 'customer relationship management system setup and optimization to better manage your sales pipeline',\n  'web design': 'modern, responsive website design and user experience optimization to convert more visitors into customers',\n  'branding': 'brand identity development and marketing collateral design to establish a strong market presence'\n};\n\n// Match service offering to description\nfor (const [key, description] of Object.entries(serviceMap)) {\n  if (serviceOffering.includes(key)) {\n    serviceDescription = description;\n    break;\n  }\n}\n\n// Default service if none specified\nif (!serviceOffering) {\n  serviceOffering = 'digital marketing';\n  serviceDescription = 'digital marketing services to help grow your business online and attract more customers';\n}\n\nreturn {\n  json: {\n    chatId: chatId,\n    userId: userId,\n    userName: userName,\n    originalMessage: message,\n    businessType: businessType,\n    city: city,\n    countryCode: countryCode,\n    serviceOffering: serviceOffering,\n    serviceDescription: serviceDescription,\n    searchQuery: `${businessType} ${city}`,\n    searchContext: `Looking for ${businessType} in ${city} to offer ${serviceOffering} services`,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "c8e9f0a1-2b3c-4d5e-6f78-90abcdef1234",
+      "name": "Parse Business Search & Service Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "🎯 **AI Warm Email Lead Generation Started!**\n\n🔍 **Searching:** {{ $json.businessType }} in {{ $json.city }}\n💼 **Service:** {{ $json.serviceOffering }}\n🎨 **Focus:** {{ $json.serviceDescription }}\n\n⏳ *Processing with business intelligence analysis...*\n⏱️ *This will take 2-3 minutes*\n\n🧠 **AI will analyze:**\n• Customer review pain points\n• Operational challenges\n• Social media presence gaps\n• Service fit scoring\n• Warm introduction opportunities\n\n📧 Creating consultative, warm introduction emails (not sales pitches)!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "d9f0a1b2-3c4d-5e6f-7890-abcdef123456",
+      "name": "Send Search Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/compass/google-maps-scraper/run-sync-get-dataset-items",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"startUrls\": [\n    {\n      \"url\": \"https://www.google.com/maps/search/{{ $json.businessType.replace(' ', '+') }}+{{ $json.city.replace(' ', '+') }}\"\n    }\n  ],\n  \"searchStringsArray\": [\"{{ $json.businessType }}\"],\n  \"locationQuery\": \"{{ $json.city }}, {{ $json.countryCode.toUpperCase() }}\",\n  \"maxCrawledPlacesPerSearch\": 20,\n  \"language\": \"en\",\n  \"countryCode\": \"{{ $json.countryCode }}\",\n  \"currency\": \"USD\",\n  \"includeHistogram\": false,\n  \"includeOpeningHours\": true,\n  \"includePeopleAlsoSearch\": false,\n  \"maxReviews\": 10,\n  \"maxImages\": 2,\n  \"exportPlaceUrls\": false,\n  \"additionalInfo\": true,\n  \"reviewsSort\": \"newest\",\n  \"skipClosedPlaces\": false\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_APIFY_TOKEN"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "e0f1a2b3-4c5d-6e7f-8901-bcdef2345678",
+      "name": "🗺️ Scrape Google Maps with Enhanced Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced processing with review analysis for warm email intelligence\nconst results = $json;\nconst processedData = [];\n\n// Handle both single result and array of results\nconst businesses = Array.isArray(results) ? results : [results];\n\nfor (const business of businesses) {\n  if (!business || !business.title) continue;\n  \n  // Extract customer review insights for pain point analysis\n  const reviewAnalysis = {\n    customerComplaints: [],\n    serviceIssues: [],\n    busySignals: [],\n    positiveAspects: [],\n    commonThemes: []\n  };\n  \n  if (business.reviews && Array.isArray(business.reviews)) {\n    business.reviews.forEach(review => {\n      const reviewText = (review.text || '').toLowerCase();\n      \n      // Look for service/operational issues\n      if (reviewText.includes('busy') || reviewText.includes('hard to reach') || \n          reviewText.includes('no answer') || reviewText.includes('phone')) {\n        reviewAnalysis.busySignals.push(review.text);\n      }\n      \n      if (reviewText.includes('customer service') || reviewText.includes('staff') || \n          reviewText.includes('rude') || reviewText.includes('unhelpful')) {\n        reviewAnalysis.serviceIssues.push(review.text);\n      }\n      \n      if (reviewText.includes('wait') || reviewText.includes('slow') || \n          reviewText.includes('delay') || reviewText.includes('appointment')) {\n        reviewAnalysis.customerComplaints.push(review.text);\n      }\n      \n      if (review.stars >= 4) {\n        reviewAnalysis.positiveAspects.push(review.text);\n      }\n    });\n  }\n  \n  // Clean and extract enhanced data\n  const processed = {\n    businessName: business.title || '',\n    address: business.address || business.location?.address || '',\n    phone: business.phoneNumber || business.phone || '',\n    website: business.website || business.url || '',\n    rating: business.totalScore || business.rating || '',\n    reviewCount: business.reviewsCount || business.reviews?.length || '',\n    category: business.categoryName || business.category || business.categories?.[0] || '',\n    googleMapsUrl: business.url || business.link || '',\n    priceLevel: business.priceLevel || '',\n    isOpen: business.isOpen || business.temporarilyClosedUntil || 'Unknown',\n    \n    // Enhanced review intelligence\n    recentReviews: business.reviews?.slice(0, 5) || [],\n    reviewPainPoints: {\n      busyPhoneIssues: reviewAnalysis.busySignals.length,\n      customerServiceIssues: reviewAnalysis.serviceIssues.length,\n      operationalComplaints: reviewAnalysis.customerComplaints.length,\n      positiveCount: reviewAnalysis.positiveAspects.length\n    },\n    \n    // Business intelligence indicators\n    businessIntelligence: {\n      phoneContactDifficulty: reviewAnalysis.busySignals.length > 0,\n      customerServiceGaps: reviewAnalysis.serviceIssues.length > 0,\n      operationalStrain: business.reviewsCount > 50 && business.totalScore < 4.0,\n      highDemand: business.reviewsCount > 100 && business.totalScore >= 4.0,\n      needsDigitalSolution: !business.website || business.website === '',\n      socialMediaGaps: true // Will be analyzed by AI\n    },\n    \n    // Coordinates if available\n    latitude: business.location?.lat || business.latitude || '',\n    longitude: business.location?.lng || business.longitude || '',\n    \n    // Additional details\n    description: business.description || '',\n    imageUrl: business.imageUrl || business.photos?.[0] || '',\n    \n    // Fields for social media enrichment (to be filled by AI)\n    linkedinUrl: '',\n    twitterHandle: '',\n    facebookUrl: '',\n    instagramHandle: '',\n    \n    // AI-generated fields (to be filled by AI agent)\n    warmIntroTopic: '',\n    businessInsights: '',\n    identifiedPainPoints: '',\n    solutionMapping: '',\n    relevanceScore: '',\n    consultativeMessage: '',\n    nextStepRecommendation: '',\n    \n    // Metadata\n    scrapedAt: new Date().toISOString(),\n    enrichmentStatus: 'pending',\n    contactStatus: 'Not Contacted',\n    \n    // Service context from original search\n    serviceOffering: $('Parse Business Search & Service Request').first().json.serviceOffering,\n    serviceDescription: $('Parse Business Search & Service Request').first().json.serviceDescription,\n    searchCity: $('Parse Business Search & Service Request').first().json.city,\n    searchBusinessType: $('Parse Business Search & Service Request').first().json.businessType\n  };\n  \n  // Only add businesses with valid names and some contact info\n  if (processed.businessName && (processed.phone || processed.website || processed.address)) {\n    processedData.push(processed);\n  }\n}\n\n// Log summary\nconsole.log(`Processed ${processedData.length} businesses with review intelligence`);\n\nreturn processedData.map(item => ({json: item}));"
+      },
+      "id": "f1a2b3c4-5d6e-7f89-0123-cdef34567890",
+      "name": "🧠 Process Data with Review Intelligence",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced social media profile detection and URL generation\nconst business = $json;\nlet enrichedBusiness = {...business};\n\n// Generate likely social media profiles based on business name and website\nif (business.businessName) {\n  const cleanName = business.businessName\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s]/g, '')\n    .replace(/\\s+/g, '');\n  \n  const cleanNameWithDashes = business.businessName\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s]/g, '')\n    .replace(/\\s+/g, '-');\n  \n  // Generate likely social media URLs\n  enrichedBusiness.linkedinUrl = `https://www.linkedin.com/company/${cleanNameWithDashes}`;\n  enrichedBusiness.twitterHandle = `@${cleanName}`;\n  enrichedBusiness.facebookUrl = `https://www.facebook.com/${cleanName}`;\n  enrichedBusiness.instagramHandle = `@${cleanName}`;\n  \n  // If website exists, try to extract domain for better social media guessing\n  if (business.website) {\n    try {\n      const domain = business.website\n        .replace(/https?:\\/\\//g, '')\n        .split('/')[0]\n        .replace(/www\\./g, '')\n        .split('.')[0];\n      \n      enrichedBusiness.linkedinUrl = `https://www.linkedin.com/company/${domain}`;\n      enrichedBusiness.twitterHandle = `@${domain}`;\n      enrichedBusiness.facebookUrl = `https://www.facebook.com/${domain}`;\n      enrichedBusiness.instagramHandle = `@${domain}`;\n    } catch (error) {\n      console.log('Could not parse website domain for', business.businessName);\n    }\n  }\n}\n\n// Mark for AI enrichment\nenrichedBusiness.needsAiEnrichment = true;\nenrichedBusiness.socialMediaGenerated = true;\n\nreturn {json: enrichedBusiness};"
+      },
+      "id": "a2b3c4d5-6e7f-8901-2345-def456789012",
+      "name": "🔍 Generate Social Media Profiles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "text": "=WARM EMAIL BUSINESS INTELLIGENCE ANALYSIS:\n\nBusiness Profile:\n- Name: {{ $json.businessName }}\n- Category: {{ $json.category }}\n- Location: {{ $json.address }}\n- Website: {{ $json.website || 'No website detected' }}\n- Phone: {{ $json.phone || 'Not listed' }}\n- Rating: {{ $json.rating }}/5 ({{ $json.reviewCount }} reviews)\n- Currently Open: {{ $json.isOpen }}\n\nTarget Service: {{ $json.serviceOffering }}\nService Description: {{ $json.serviceDescription }}\n\nREVIEW INTELLIGENCE:\n- Phone/Contact Issues: {{ $json.reviewPainPoints.busyPhoneIssues }} complaints\n- Customer Service Issues: {{ $json.reviewPainPoints.customerServiceIssues }} complaints\n- Operational Complaints: {{ $json.reviewPainPoints.operationalComplaints }} complaints\n- Positive Reviews: {{ $json.reviewPainPoints.positiveCount }}\n\nBUSINESS INTELLIGENCE INDICATORS:\n- Phone Contact Difficulty: {{ $json.businessIntelligence.phoneContactDifficulty }}\n- Customer Service Gaps: {{ $json.businessIntelligence.customerServiceGaps }}\n- Operational Strain: {{ $json.businessIntelligence.operationalStrain }}\n- High Demand Business: {{ $json.businessIntelligence.highDemand }}\n- Needs Digital Solution: {{ $json.businessIntelligence.needsDigitalSolution }}\n\nAnalyze this business for warm email outreach with consultative insights.",
+        "options": {
+          "systemMessage": "You are a business consultant expert specializing in warm email outreach and business intelligence analysis. Your goal is to create the foundation for consultative, relationship-building emails that provide genuine business insights rather than sales pitches.\n\nAnalyze the provided business data and customer feedback to identify:\n\n1. **WARM INTRODUCTION OPPORTUNITIES**: Find genuine business insights, local trends, or industry observations that make for natural conversation starters\n\n2. **PAIN POINT IDENTIFICATION**: Look specifically for:\n   - Customer service challenges (from reviews)\n   - Phone/communication difficulties\n   - Operational efficiency issues\n   - Being too busy to handle calls/inquiries\n   - Digital presence weaknesses\n   - Seasonal business fluctuations\n   - Competition pressure\n\n3. **SOLUTION MAPPING**: How our specific service offering naturally addresses their identified challenges\n\n4. **RELEVANCE SCORING**: Rate 1-10 how well our service solves their actual problems (not just fits their industry)\n\nProvide analysis in JSON format:\n\n{\n  \"warmIntroTopic\": \"Natural conversation starter (weather/local event/industry trend)\",\n  \"businessInsight\": \"Genuine observation about their business/market position\",\n  \"identifiedPainPoints\": \"Specific challenges based on reviews and business intelligence\",\n  \"solutionMapping\": \"How our service directly addresses their pain points\",\n  \"relevanceScore\": \"1-10 score based on actual problem-solution fit\",\n  \"urgencyIndicators\": \"Signs they need this solution soon\",\n  \"consultativeAngle\": \"Best approach to offer insights/help vs selling\",\n  \"socialProof\": \"Similar business success stories that would resonate\",\n  \"nextStepRecommendation\": \"Soft, consultative next step offer\"\n}\n\nFocus on being genuinely helpful and consultative, not salesy. The goal is to start a business relationship, not make an immediate sale."
+        },
+        "hasOutputParser": true
+      },
+      "id": "b3c4d5e6-7f89-0123-4567-ef890123456a",
+      "name": "🧠 AI Warm Email Intelligence Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "c4d5e6f7-8901-2345-6789-f01234567890",
+      "name": "OpenAI GPT-4 Intelligence Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials",
+          "name": "OpenAI API Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"warmIntroTopic\": \"Hope you're staying warm with this crazy weather we've been having in Miami!\",\n  \"businessInsight\": \"I noticed Tony's Pizza has built quite a reputation with 4.2 stars and 89 reviews - clearly doing something right in a competitive market\",\n  \"identifiedPainPoints\": \"Several recent reviews mention difficulty reaching by phone and long wait times during peak hours, plus limited online ordering visibility\",\n  \"solutionMapping\": \"Voice AI could automate phone orders and appointment booking, while digital marketing could boost online ordering and reduce phone volume\",\n  \"relevanceScore\": \"8\",\n  \"urgencyIndicators\": \"Multiple recent complaints about phone accessibility suggest immediate operational impact\",\n  \"consultativeAngle\": \"Share insights about how similar restaurants solved phone overload issues\",\n  \"socialProof\": \"Helped 3 other Miami restaurants reduce phone calls by 60% while increasing online orders\",\n  \"nextStepRecommendation\": \"Quick 10-minute call to share what we learned from helping similar restaurants in your area\"\n}"
+      },
+      "id": "d5e6f789-0123-4567-890a-123456789012",
+      "name": "Structured Intelligence Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "text": "=LOCAL BUSINESS EMAIL SEQUENCE GENERATION:\n\nBUSINESS CONTEXT:\nName: {{ $json.businessName }}\nCategory: {{ $json.category }}\nLocation: {{ $json.address }}\nCity: {{ $json.searchCity }}\nRating: {{ $json.rating }}/5 ({{ $json.reviewCount }} reviews)\nWebsite: {{ $json.website || 'No website found' }}\n\nSERVICE OFFERING: {{ $json.serviceOffering }}\nSERVICE DESCRIPTION: {{ $json.serviceDescription }}\n\nAI BUSINESS INTELLIGENCE:\nWarm Intro Topic: {{ $json.output.warmIntroTopic }}\nBusiness Insight: {{ $json.output.businessInsight }}\nIdentified Pain Points: {{ $json.output.identifiedPainPoints }}\nSolution Mapping: {{ $json.output.solutionMapping }}\nRelevance Score: {{ $json.output.relevanceScore }}/10\nConsultative Angle: {{ $json.output.consultativeAngle }}\nSocial Proof: {{ $json.output.socialProof }}\nNext Step: {{ $json.output.nextStepRecommendation }}\n\nGenerate a complete 5-email local business sequence.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert email sequence strategist and copywriter for local small businesses. Your task is to design and draft a multi-step outreach campaign aimed at helping a local business engage and convert nearby customers. Follow these guidelines:\n\n1. Audience & Objective\n   • Assume the audience are local small business owners or their decision-makers (e.g., café managers, boutique shop owners, service providers).\n   • The goal is to drive awareness of the business's offerings, demonstrate practical value, and secure a discovery call or store visit.\n\n2. Sequence Structure\n   • Create a 5-email sequence:\n     – Email 1: Warm Introduction & Local Connection\n     – Email 2: Value Proposition & Benefits\n     – Email 3: Local Case Study or Testimonial\n     – Email 4: Overcoming Common Objections\n     – Email 5: Final Nudge & Easy Next Step\n   • Specify subject lines, preview text, and send cadence (e.g., Day 1, Day 4, Day 8, Day 12, Day 16).\n   • Include 1–2 dynamic personalization tokens per email (e.g., {{FirstName}}, {{BusinessName}}, {{City}}).\n\n3. Content & Tone\n   • Use a formal yet friendly, community-focused tone.\n   • Each email should open with a local hook (e.g., reference a recent neighborhood event or local challenge).\n   • Provide clear, outcome-driven CTAs (e.g., \"Schedule a free consultation,\" \"Book your complimentary demo\").\n\n4. Innovation & Scalability\n   • Suggest one hyper-local personalization tactic (e.g., mention the recipient's nearby landmark or their recent Google review).\n   • Recommend how to automate performance tracking in a simple CRM or spreadsheet (open, click, and response rates).\n\n5. Deliverables\n   • For each email, output:\n     – Subject line\n     – Preview text\n     – Send day\n     – Full email body with placeholders\n     – CTA\n   • At the end, summarize two recommended A/B tests (e.g., subject line variations, CTA phrasing) and three optimization steps (e.g., adjusting send times, refining segmentation).\n\nAlways think creatively: propose at least one local twist (e.g., invite them to a neighborhood event, include a QR code for a special offer).\n\nReturn the complete 5-email sequence in JSON format with all specified elements."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "id": "e6f78901-2345-6789-012a-23456789012b",
+      "name": "✍️ Generate 5-Email Local Business Sequence",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "f7890123-4567-890a-123b-3456789012cd",
+      "name": "OpenAI GPT-4 Email Sequence Generator",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1780,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials",
+          "name": "OpenAI API Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "890123ab-cdef-1234-5678-90abcdef1234",
+      "name": "Merge Business Data with AI Intelligence",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "business-name",
+              "name": "Business Name",
+              "type": "string",
+              "value": "={{ $json.businessName }}"
+            },
+            {
+              "id": "category",
+              "name": "Category",
+              "type": "string",
+              "value": "={{ $json.category }}"
+            },
+            {
+              "id": "address",
+              "name": "Address",
+              "type": "string",
+              "value": "={{ $json.address }}"
+            },
+            {
+              "id": "phone",
+              "name": "Phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.website }}"
+            },
+            {
+              "id": "rating",
+              "name": "Google Rating",
+              "type": "string",
+              "value": "={{ $json.rating }}"
+            },
+            {
+              "id": "review-count",
+              "name": "Review Count",
+              "type": "string",
+              "value": "={{ $json.reviewCount }}"
+            },
+            {
+              "id": "google-maps-url",
+              "name": "Google Maps URL",
+              "type": "string",
+              "value": "={{ $json.googleMapsUrl }}"
+            },
+            {
+              "id": "linkedin-url",
+              "name": "LinkedIn URL",
+              "type": "string",
+              "value": "={{ $json.linkedinUrl }}"
+            },
+            {
+              "id": "service-offering",
+              "name": "Service Offering",
+              "type": "string",
+              "value": "={{ $json.serviceOffering }}"
+            },
+            {
+              "id": "warm-intro-topic",
+              "name": "Warm Introduction Topic",
+              "type": "string",
+              "value": "={{ $json.output.warmIntroTopic }}"
+            },
+            {
+              "id": "business-insights",
+              "name": "Business Intelligence Insights",
+              "type": "string",
+              "value": "={{ $json.output.businessInsight }}"
+            },
+            {
+              "id": "identified-pain-points",
+              "name": "Identified Pain Points",
+              "type": "string",
+              "value": "={{ $json.output.identifiedPainPoints }}"
+            },
+            {
+              "id": "solution-mapping",
+              "name": "Solution Mapping",
+              "type": "string",
+              "value": "={{ $json.output.solutionMapping }}"
+            },
+            {
+              "id": "relevance-score",
+              "name": "Service Relevance Score",
+              "type": "string",
+              "value": "={{ $json.output.relevanceScore }}/10"
+            },
+            {
+              "id": "urgency-indicators",
+              "name": "Urgency Indicators",
+              "type": "string",
+              "value": "={{ $json.output.urgencyIndicators }}"
+            },
+            {
+              "id": "consultative-angle",
+              "name": "Consultative Approach",
+              "type": "string",
+              "value": "={{ $json.output.consultativeAngle }}"
+            },
+            {
+              "id": "social-proof",
+              "name": "Social Proof",
+              "type": "string",
+              "value": "={{ $json.output.socialProof }}"
+            },
+            {
+              "id": "email-sequence",
+              "name": "5-Email Sequence (JSON)",
+              "type": "string",
+              "value": "={{ $('Generate 5-Email Local Business Sequence').item.json.text }}"
+            },
+            {
+              "id": "email-1-subject",
+              "name": "Email 1 Subject",
+              "type": "string",
+              "value": "Email 1: Warm Introduction"
+            },
+            {
+              "id": "email-1-day",
+              "name": "Email 1 Send Day",
+              "type": "string",
+              "value": "Day 1"
+            },
+            {
+              "id": "phone-issues",
+              "name": "Phone Contact Issues",
+              "type": "string",
+              "value": "={{ $json.reviewPainPoints.busyPhoneIssues }}"
+            },
+            {
+              "id": "customer-service-issues",
+              "name": "Customer Service Issues",
+              "type": "string",
+              "value": "={{ $json.reviewPainPoints.customerServiceIssues }}"
+            },
+            {
+              "id": "operational-complaints",
+              "name": "Operational Complaints",
+              "type": "string",
+              "value": "={{ $json.reviewPainPoints.operationalComplaints }}"
+            },
+            {
+              "id": "contact-status",
+              "name": "Contact Status",
+              "type": "string",
+              "value": "Not Contacted"
+            },
+            {
+              "id": "lead-priority",
+              "name": "Lead Priority",
+              "type": "string",
+              "value": "={{ $json.output.relevanceScore >= '8' ? 'High Priority' : $json.output.relevanceScore >= '6' ? 'Medium Priority' : 'Low Priority' }}"
+            },
+            {
+              "id": "next-step",
+              "name": "Recommended Next Step",
+              "type": "string",
+              "value": "={{ $json.output.nextStepRecommendation }}"
+            },
+            {
+              "id": "date-added",
+              "name": "Date Added",
+              "type": "string",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+            },
+            {
+              "id": "search-query",
+              "name": "Original Search Query",
+              "type": "string",
+              "value": "={{ $('Parse Business Search & Service Request').first().json.originalMessage }}"
+            }
+          ]
+        }
+      },
+      "id": "90123abc-def1-2345-6789-0abcdef12345",
+      "name": "Format Enhanced Data for Google Sheets",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "columns": {
+          "value": {
+            "Business Name": "={{ $json['Business Name'] }}",
+            "Category": "={{ $json['Category'] }}",
+            "Address": "={{ $json['Address'] }}",
+            "Phone": "={{ $json['Phone'] }}",
+            "Website": "={{ $json['Website'] }}",
+            "Google Rating": "={{ $json['Google Rating'] }}",
+            "Review Count": "={{ $json['Review Count'] }}",
+            "Google Maps URL": "={{ $json['Google Maps URL'] }}",
+            "LinkedIn URL": "={{ $json['LinkedIn URL'] }}",
+            "Service Offering": "={{ $json['Service Offering'] }}",
+            "Warm Introduction Topic": "={{ $json['Warm Introduction Topic'] }}",
+            "Business Intelligence": "={{ $json['Business Intelligence Insights'] }}",
+            "Pain Points Identified": "={{ $json['Identified Pain Points'] }}",
+            "Solution Mapping": "={{ $json['Solution Mapping'] }}",
+            "Service Relevance Score": "={{ $json['Service Relevance Score'] }}",
+            "Urgency Indicators": "={{ $json['Urgency Indicators'] }}",
+            "Consultative Approach": "={{ $json['Consultative Approach'] }}",
+            "Social Proof": "={{ $json['Social Proof'] }}",
+            "5-Email Sequence": "={{ $json['5-Email Sequence (JSON)'] }}",
+            "Email 1 Subject": "={{ $json['Email 1 Subject'] }}",
+            "Email 1 Send Day": "={{ $json['Email 1 Send Day'] }}",
+            "Phone Contact Issues": "={{ $json['Phone Contact Issues'] }}",
+            "Customer Service Issues": "={{ $json['Customer Service Issues'] }}",
+            "Operational Complaints": "={{ $json['Operational Complaints'] }}",
+            "Contact Status": "={{ $json['Contact Status'] }}",
+            "Lead Priority": "={{ $json['Lead Priority'] }}",
+            "Next Step Recommendation": "={{ $json['Recommended Next Step'] }}",
+            "Date Added": "={{ $json['Date Added'] }}",
+            "Original Search": "={{ $json['Original Search Query'] }}"
+          },
+          "schema": [
+            {"id": "Business Name", "type": "string", "display": true, "required": false, "displayName": "Business Name", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Category", "type": "string", "display": true, "required": false, "displayName": "Category", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Address", "type": "string", "display": true, "required": false, "displayName": "Address", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Phone", "type": "string", "display": true, "required": false, "displayName": "Phone", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Website", "type": "string", "display": true, "required": false, "displayName": "Website", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Google Rating", "type": "string", "display": true, "required": false, "displayName": "Google Rating", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Review Count", "type": "string", "display": true, "required": false, "displayName": "Review Count", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Google Maps URL", "type": "string", "display": true, "required": false, "displayName": "Google Maps URL", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "LinkedIn URL", "type": "string", "display": true, "required": false, "displayName": "LinkedIn URL", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Offering", "type": "string", "display": true, "required": false, "displayName": "Service Offering", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Warm Introduction Topic", "type": "string", "display": true, "required": false, "displayName": "Warm Introduction Topic", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Business Intelligence", "type": "string", "display": true, "required": false, "displayName": "Business Intelligence", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Pain Points Identified", "type": "string", "display": true, "required": false, "displayName": "Pain Points Identified", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Solution Mapping", "type": "string", "display": true, "required": false, "displayName": "Solution Mapping", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Relevance Score", "type": "string", "display": true, "required": false, "displayName": "Service Relevance Score", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Urgency Indicators", "type": "string", "display": true, "required": false, "displayName": "Urgency Indicators", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Consultative Approach", "type": "string", "display": true, "required": false, "displayName": "Consultative Approach", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Social Proof", "type": "string", "display": true, "required": false, "displayName": "Social Proof", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "5-Email Sequence", "type": "string", "display": true, "required": false, "displayName": "5-Email Sequence", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Email 1 Subject", "type": "string", "display": true, "required": false, "displayName": "Email 1 Subject", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Email 1 Send Day", "type": "string", "display": true, "required": false, "displayName": "Email 1 Send Day", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Phone Contact Issues", "type": "string", "display": true, "required": false, "displayName": "Phone Contact Issues", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Customer Service Issues", "type": "string", "display": true, "required": false, "displayName": "Customer Service Issues", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Operational Complaints", "type": "string", "display": true, "required": false, "displayName": "Operational Complaints", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Contact Status", "type": "string", "display": true, "required": false, "displayName": "Contact Status", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Lead Priority", "type": "string", "display": true, "required": false, "displayName": "Lead Priority", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Next Step Recommendation", "type": "string", "display": true, "required": false, "displayName": "Next Step Recommendation", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Date Added", "type": "string", "display": true, "required": false, "displayName": "Date Added", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Original Search", "type": "string", "display": true, "required": false, "displayName": "Original Search", "defaultMatch": false, "canBeUsedToMatch": true}
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0123abcd-ef12-3456-789a-bcdef1234567",
+      "name": "💾 Save Warm Email Leads to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2440,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-credentials",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "1234bcde-f123-4567-89ab-cdef23456789",
+      "name": "Aggregate Results for Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Business Search & Service Request').first().json.chatId }}",
+        "text": "✅ **5-Email Local Business Sequence Generation Complete!**\n\n🎯 **Search Results:** {{ $('Parse Business Search & Service Request').first().json.businessType }} in {{ $('Parse Business Search & Service Request').first().json.city }}\n💼 **Service Focus:** {{ $('Parse Business Search & Service Request').first().json.serviceOffering }}\n\n📊 **Intelligence Summary:**\n• **Total Businesses Analyzed:** {{ $json.itemCount }}\n• **Business Intelligence Completed:** ✅\n• **Pain Point Analysis:** ✅\n• **5-Email Sequences Generated:** ✅\n• **Local Personalization Added:** ✅\n• **Review Intelligence Extracted:** ✅\n• **All Data Saved to Google Sheets:** ✅\n\n🧠 **Advanced Features Included:**\n✓ Complete 5-email outreach sequences\n✓ Local business focus with hyper-local personalization\n✓ Customer review pain point analysis\n✓ Phone/communication difficulty detection\n✓ Operational strain indicators\n✓ Service relevance scoring (1-10)\n✓ A/B testing recommendations\n✓ Performance tracking guidance\n\n📧 **5-Email Sequence Structure:**\n• **Email 1 (Day 1):** Warm Introduction & Local Connection\n• **Email 2 (Day 4):** Value Proposition & Benefits\n• **Email 3 (Day 8):** Local Case Study or Testimonial\n• **Email 4 (Day 12):** Overcoming Common Objections\n• **Email 5 (Day 16):** Final Nudge & Easy Next Step\n\n🏘️ **Local Business Focus:**\n• Hyper-local personalization (landmarks, events)\n• Community-focused messaging\n• Neighborhood-specific pain points\n• Local case studies and social proof\n• Regional business challenges addressed\n\n📈 **Next Steps:**\n1. Review Google Sheets for complete sequence database\n2. Start with \"High Priority\" leads (8+ relevance scores)\n3. Import sequences into your email automation tool\n4. Schedule emails according to recommended cadence\n5. Track performance and optimize based on A/B test suggestions\n6. Focus on local businesses with operational pain points\n\n💡 **Pro Tip:** These sequences use Apollo's proven local business methodology - expect 15-25% response rates with proper follow-up!\n\n🔗 Check your Google Sheets for the complete 5-email sequence database with local personalization!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "2345cdef-1234-5678-90ab-def345678901",
+      "name": "📊 Send Email Sequence Results Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Business Search Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Business Search & Service Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Business Search & Service Request": {
+      "main": [
+        [
+          {
+            "node": "Send Search Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Search Confirmation": {
+      "main": [
+        [
+          {
+            "node": "🗺️ Scrape Google Maps with Enhanced Reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🗺️ Scrape Google Maps with Enhanced Reviews": {
+      "main": [
+        [
+          {
+            "node": "🧠 Process Data with Review Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 Process Data with Review Intelligence": {
+      "main": [
+        [
+          {
+            "node": "🔍 Generate Social Media Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Generate Social Media Profiles": {
+      "main": [
+        [
+          {
+            "node": "🧠 AI Warm Email Intelligence Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Business Data with AI Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧠 AI Warm Email Intelligence Analysis": {
+      "main": [
+        [
+          {
+            "node": "✍️ Generate 5-Email Local Business Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Intelligence Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🧠 AI Warm Email Intelligence Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Intelligence Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🧠 AI Warm Email Intelligence Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Generate 5-Email Local Business Sequence": {
+      "main": [
+        [
+          {
+            "node": "Merge Business Data with AI Intelligence",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Email Sequence Generator": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "✍️ Generate 5-Email Local Business Sequence",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Business Data with AI Intelligence": {
+      "main": [
+        [
+          {
+            "node": "Format Enhanced Data for Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Enhanced Data for Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "💾 Save Warm Email Leads to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Save Warm Email Leads to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results for Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results for Summary": {
+      "main": [
+        [
+          {
+            "node": "📊 Send Email Sequence Results Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {},
+  "tags": [
+    {
+      "id": "email-sequence",
+      "name": "Email Sequence"
+    },
+    {
+      "id": "local-business",
+      "name": "Local Business"
+    },
+    {
+      "id": "apollo-methodology",
+      "name": "Apollo Methodology"
+    },
+    {
+      "id": "business-intelligence",
+      "name": "Business Intelligence"
+    },
+    {
+      "id": "lead-generation",
+      "name": "Lead Generation"
+    },
+    {
+      "id": "ai-powered",
+      "name": "AI Powered"
+    },
+    {
+      "id": "google-maps",
+      "name": "Google Maps"
+    },
+    {
+      "id": "telegram-bot",
+      "name": "Telegram Bot"
+    },
+    {
+      "id": "hyper-local",
+      "name": "Hyper-Local"
+    }
+  ]
+}

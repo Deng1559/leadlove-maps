@@ -1,0 +1,159 @@
+{
+  "businessProfile": {
+    "name": "Tony's Pizzeria",
+    "category": "Italian Restaurant",
+    "location": "Miami, FL - Wynwood District",
+    "rating": "4.3/5",
+    "reviewCount": 127,
+    "serviceOffering": "Digital Marketing"
+  },
+  "emailSequence": {
+    "email1": {
+      "sendDay": "Day 1",
+      "purpose": "Warm Introduction & Local Connection",
+      "subject": "Quick thought about the Wynwood restaurant scene",
+      "previewText": "Hope you're managing well with this busy tourist season...",
+      "body": "Hi Maria,\n\nHope you're managing well with the crazy Miami Beach tourist season hitting full swing this month!\n\nI noticed Tony's Pizzeria has built quite a reputation in the Wynwood area (4.3 stars with 127 reviews) - clearly doing something right in such a competitive market, especially being so close to all those trendy spots on NW 2nd Avenue.\n\nI've been working with similar family restaurants in South Florida and noticed many are struggling to capture the tourist traffic that's literally walking past their doors every day. Most visitors are searching for \"pizza near me\" but many great local spots aren't showing up in those critical mobile searches.\n\nWe recently helped 3 Miami restaurants increase their visibility to tourists and locals, seeing 40% more walk-ins during peak season.\n\nWould you be open to a quick 10-minute call to share what we learned about capturing that foot traffic in your neighborhood?\n\nBest regards,\nAlex",
+      "cta": "Schedule 10-minute call",
+      "personalizationTokens": ["{{FirstName}}", "{{BusinessName}}", "{{City}}", "{{Neighborhood}}"]
+    },
+    "email2": {
+      "sendDay": "Day 4", 
+      "purpose": "Value Proposition & Benefits",
+      "subject": "How Miami restaurants capture more tourist traffic",
+      "previewText": "Three specific strategies working in Wynwood...",
+      "body": "Hi {{FirstName}},\n\nHope business has been picking up with the beautiful weather we've been having!\n\nI wanted to share what we've learned about helping Miami restaurants like {{BusinessName}} capture more of the tourist and local foot traffic, especially in high-energy areas like {{Neighborhood}}.\n\nHere's what's working for local restaurants right now:\n\n**Local Search Dominance**: When tourists search \"best pizza {{Neighborhood}},\" you want to be the first result, not the chain restaurants.\n\n**Real-Time Social Proof**: Live updates about fresh specials, crowd energy, and authentic atmosphere that tourists are looking for.\n\n**Mobile-First Experience**: 78% of restaurant searches happen on mobile while people are walking around looking for their next meal.\n\nThe restaurants we work with in your area typically see 35-50% more discovery traffic within the first 2 months, plus higher-value orders from tourists who spend more than locals.\n\nWould you like to see exactly how this works for a pizzeria in your location? I could walk you through it in about 15 minutes.\n\nBest,\nAlex",
+      "cta": "Schedule 15-minute demo",
+      "personalizationTokens": ["{{FirstName}}", "{{BusinessName}}", "{{Neighborhood}}"]
+    },
+    "email3": {
+      "sendDay": "Day 8",
+      "purpose": "Local Case Study or Testimonial", 
+      "subject": "How Casa Luigi went from hidden gem to neighborhood hotspot",
+      "previewText": "A Little Havana success story...",
+      "body": "Hi {{FirstName}},\n\nHope you caught that great article about {{Neighborhood}}'s restaurant scene in the Miami Herald last week!\n\nI thought you'd find this interesting - we recently worked with Casa Luigi, a family Italian restaurant in Little Havana that was facing a similar challenge to {{BusinessName}}: amazing food and loyal locals, but tourists were walking right past to the flashier places.\n\nHere's what happened:\n\n**Before**: 60% locals, 40% tourists, $8,500 average monthly online orders\n**After 3 months**: 45% locals, 55% tourists, $14,200 monthly online orders\n\nThe breakthrough was optimizing for \"authentic Italian Miami\" searches and showcasing their family recipes and history. Tourists don't just want good food - they want the authentic Miami experience that only places like Casa Luigi and {{BusinessName}} can provide.\n\nTheir owner, Giuseppe, told me last week: \"We're not just serving more customers - we're serving the RIGHT customers who appreciate what makes us special.\"\n\nThe strategies that worked for Casa Luigi would work perfectly for {{BusinessName}}'s location and tourist traffic patterns.\n\nWant to see the specific tactics we used? I could show you in a quick 15-minute screen share.\n\nBest,\nAlex",
+      "cta": "Book case study review",
+      "personalizationTokens": ["{{FirstName}}", "{{BusinessName}}", "{{Neighborhood}}"]
+    },
+    "email4": {
+      "sendDay": "Day 12",
+      "purpose": "Overcoming Common Objections",
+      "subject": "\"We tried online marketing before...\"",
+      "previewText": "I hear this from Miami restaurant owners all the time...", 
+      "body": "Hi {{FirstName}},\n\nHope you're staying cool during this Miami heat wave!\n\nI imagine by now you might be thinking, \"We tried online marketing before and it didn't really work for us.\" I hear this from Miami restaurant owners all the time, and honestly, they're usually right to be skeptical.\n\nMost marketing agencies treat local restaurants like they're national chains. They use generic strategies that work for big brands but completely miss what makes neighborhood places like {{BusinessName}} special - that authentic, family atmosphere that locals love and tourists are searching for.\n\nHere's the difference: we focus exclusively on local businesses in South Florida. We understand that your competition isn't just other pizzerias - it's every restaurant competing for the same foot traffic walking down {{LocalStreet}}.\n\nPlus, we start with small, measurable improvements rather than big expensive campaigns. Think optimizing your Google listing for \"pizza {{Neighborhood}}\" searches before spending money on ads.\n\nThe Casa Luigi owner I mentioned was skeptical too - he'd been burned by two previous agencies. But we started small, proved results, then scaled what worked.\n\nWould you be open to a brief call where I could show you exactly what we'd do differently for {{BusinessName}}? No commitment, just insights you can use either way.\n\nBest,\nAlex",
+      "cta": "Schedule no-commitment consultation",
+      "personalizationTokens": ["{{FirstName}}", "{{BusinessName}}", "{{Neighborhood}}", "{{LocalStreet}}"]
+    },
+    "email5": {
+      "sendDay": "Day 16",
+      "purpose": "Final Nudge & Easy Next Step",
+      "subject": "Last thought about Tony's potential", 
+      "previewText": "Quick favor - 2 minutes of your time?",
+      "body": "Hi {{FirstName}},\n\nHope the weekend was good to you with all the beautiful weather bringing people out!\n\nI know you're busy running {{BusinessName}}, so I'll keep this brief.\n\nI've been thinking about our conversation thread, and I keep coming back to this: {{BusinessName}} has everything needed to dominate the {{Neighborhood}} pizza scene - amazing food, great location, loyal customers.\n\nThe only thing missing is making sure tourists and new locals can find you as easily as the regulars do.\n\nI'd hate for you to miss out on what could be your biggest season yet, especially with Miami's tourism numbers hitting record highs this year.\n\nHere's what I can do: I'll spend 15 minutes this week showing you exactly what {{BusinessName}}'s online presence looks like to potential customers right now, and give you 2-3 specific improvements you can make immediately (whether you work with us or not).\n\nJust reply with \"YES\" and I'll send you a quick link to grab 15 minutes when it's convenient for you.\n\nEither way, best of luck with the busy season!\n\nAlex\n\nP.S. - If you're not interested, no worries at all. Just reply \"NO THANKS\" and I'll make sure you don't hear from me again.",
+      "cta": "Reply YES for immediate insights",
+      "personalizationTokens": ["{{FirstName}}", "{{BusinessName}}", "{{Neighborhood}}"]
+    }
+  },
+  "hyperLocalPersonalization": {
+    "locationSpecifics": {
+      "neighborhood": "Wynwood District",
+      "nearbyLandmarks": ["NW 2nd Avenue", "Wynwood Walls", "Miami Design District"],
+      "localChallenges": ["Tourist vs local balance", "High foot traffic competition", "Mobile search behavior"],
+      "seasonalFactors": ["Peak tourist season", "Miami Beach proximity", "Art Basel events"]
+    },
+    "businessIntelligence": {
+      "competitiveAdvantage": "Authentic family atmosphere vs chain restaurants",
+      "customerMix": "Local regulars + passing tourists",
+      "searchBehavior": "Pizza near me mobile searches",
+      "marketPosition": "Hidden gem with strong ratings"
+    }
+  },
+  "abTestRecommendations": {
+    "subjectLineTests": [
+      {
+        "email": 1,
+        "variantA": "Quick thought about Tony's Pizza",
+        "variantB": "Quick thought about the Wynwood restaurant scene",
+        "hypothesis": "Business name vs location focus"
+      },
+      {
+        "email": 2, 
+        "variantA": "How Miami restaurants capture tourist traffic",
+        "variantB": "Are you capturing Miami's 4M annual tourists?",
+        "hypothesis": "Statement vs question + specific data"
+      }
+    ],
+    "ctaTests": [
+      {
+        "email": 1,
+        "variantA": "Quick 10-minute call",
+        "variantB": "Brief 15-minute conversation", 
+        "hypothesis": "Time commitment impact"
+      },
+      {
+        "email": 5,
+        "variantA": "Reply YES for immediate insights",
+        "variantB": "Click here to schedule",
+        "hypothesis": "Simple reply vs link click"
+      }
+    ]
+  },
+  "optimizationSteps": [
+    {
+      "step": 1,
+      "action": "Send baseline sequences for 2 weeks",
+      "measure": "Open rates, response rates, meeting bookings"
+    },
+    {
+      "step": 2, 
+      "action": "A/B test subject lines on highest-performing emails",
+      "measure": "Open rate improvement"
+    },
+    {
+      "step": 3,
+      "action": "Optimize send times based on open patterns",
+      "measure": "Engagement timing analysis"
+    }
+  ],
+  "performanceTracking": {
+    "expectedMetrics": {
+      "openRate": "35-45%",
+      "clickRate": "8-12%", 
+      "responseRate": "15-25%",
+      "meetingConversion": "40-60%"
+    },
+    "crmFields": [
+      "Lead Name",
+      "Business Name", 
+      "Email Address",
+      "Phone",
+      "Location",
+      "Email 1 Sent Date",
+      "Email 1 Opened",
+      "Email 2 Sent Date", 
+      "Email 2 Opened",
+      "Response Date",
+      "Response Type",
+      "Meeting Booked Date",
+      "Meeting Outcome",
+      "Status"
+    ]
+  },
+  "localTwists": [
+    {
+      "type": "QR Code Offer",
+      "description": "Include QR code for 'Miami Local Special' - 15% off digital audit",
+      "implementation": "Add to email signature or P.S."
+    },
+    {
+      "type": "Neighborhood Event",
+      "description": "Invite to monthly 'Wynwood Business Owners Coffee Meetup'",
+      "implementation": "Mention in Email 3 or 4 as additional value"
+    },
+    {
+      "type": "Local Authority Building",
+      "description": "Reference specific Miami business statistics and market insights",
+      "implementation": "Weave into value proposition emails"
+    }
+  ]
+}

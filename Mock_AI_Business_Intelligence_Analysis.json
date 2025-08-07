@@ -1,0 +1,60 @@
+{
+  "businessIntelligenceAnalysis": {
+    "warmIntroTopic": "Hope you're managing well with the busy Lincoln Road winter tourist season!",
+    "businessInsight": "I noticed Sophia's Mediterranean Grill has built a solid reputation with 4.2 stars and 189 reviews on one of Miami Beach's most competitive dining strips - clearly doing something right with authentic Mediterranean cuisine in such a tourist-heavy location.",
+    "identifiedPainPoints": [
+      "Multiple customer complaints about phone accessibility during busy periods",
+      "No phone order system during dinner rush creating customer frustration", 
+      "Slow service during peak tourist season overwhelming staff",
+      "Missing online ordering system reducing takeout convenience",
+      "Lincoln Road parking challenges affecting customer accessibility",
+      "Phone calls going unanswered causing lost business opportunities"
+    ],
+    "solutionMapping": "Digital marketing can solve their core operational issues: automated phone systems can handle order inquiries, online ordering reduces phone volume, local SEO can attract customers who understand their authentic value vs tourist traps, and social media can manage expectations about wait times during peak season.",
+    "relevanceScore": "9",
+    "urgencyIndicators": [
+      "Recent negative reviews specifically about phone accessibility",
+      "Lost customers due to unanswered phones during peak hours", 
+      "Tourist season peak creating operational strain",
+      "Competitors likely capturing customers who can't reach them"
+    ],
+    "consultativeAngle": "Focus on how digital solutions can reduce operational stress during peak periods while maintaining their authentic, family-owned charm",
+    "socialProof": "Helped 3 other Lincoln Road restaurants implement automated systems that reduced phone calls by 60% while increasing online orders during peak tourist season",
+    "nextStepRecommendation": "15-minute call to show exactly how to solve phone overload issues while preserving personal customer service"
+  },
+  "reviewPainPointAnalysis": {
+    "busyPhoneIssues": 4,
+    "customerServiceIssues": 2, 
+    "operationalComplaints": 3,
+    "positiveCount": 3,
+    "commonThemes": [
+      "Phone accessibility problems during peak hours",
+      "Excellent authentic food quality",
+      "Family-owned atmosphere with personal touch",
+      "Tourist season operational challenges",
+      "Missing digital conveniences (online ordering)"
+    ]
+  },
+  "businessIntelligenceIndicators": {
+    "phoneContactDifficulty": true,
+    "customerServiceGaps": false,
+    "operationalStrain": true,
+    "highDemand": true,
+    "needsDigitalSolution": true,
+    "socialMediaGaps": true,
+    "authenticityStrength": true,
+    "locationAdvantage": true
+  },
+  "localMarketContext": {
+    "neighborhood": "Lincoln Road, Miami Beach",
+    "competitiveFactors": [
+      "High-traffic tourist dining destination",
+      "Mix of chain restaurants and local establishments", 
+      "Seasonal demand fluctuations",
+      "Parking and accessibility challenges"
+    ],
+    "customerMix": "50% tourists, 30% locals, 20% repeat customers",
+    "seasonalChallenges": "Winter peak season overwhelming operations",
+    "uniqueStrengths": "Authentic family recipes, personal service, established reputation"
+  }
+}

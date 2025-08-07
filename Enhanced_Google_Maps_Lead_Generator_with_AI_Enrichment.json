@@ -1,0 +1,726 @@
+{
+  "name": "🗺️ AI-Enhanced Google Maps Lead Generator with Service Personalization",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "b7d4e5c6-1a2b-3c4d-5e6f-7890abcdef01",
+      "name": "Telegram Business Search Trigger",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "business-search-bot",
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Telegram message for business type, location, AND service offering\nconst message = $json.body.message.text.toLowerCase();\nconst chatId = $json.body.message.chat.id;\nconst userId = $json.body.message.from.id;\nconst userName = $json.body.message.from.first_name || 'User';\n\nlet businessType = '';\nlet city = '';\nlet countryCode = 'us';\nlet serviceOffering = '';\nlet serviceDescription = '';\n\n// Enhanced pattern matching for service offerings\nlet cleanMessage = message;\n\n// Extract service offering patterns\nif (message.includes(' for ')) {\n  const parts = message.split(' for ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' - ')) {\n  const parts = message.split(' - ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' offering ')) {\n  const parts = message.split(' offering ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n} else if (message.includes(' | ')) {\n  const parts = message.split(' | ');\n  cleanMessage = parts[0];\n  serviceOffering = parts[1].trim();\n}\n\n// Parse business type and location from cleaned message\nif (cleanMessage.includes(' in ')) {\n  const parts = cleanMessage.split(' in ');\n  businessType = parts[0].trim();\n  city = parts[1].trim();\n} else if (cleanMessage.includes(' near ')) {\n  const parts = cleanMessage.split(' near ');\n  businessType = parts[0].trim();\n  city = parts[1].trim();\n} else {\n  const words = cleanMessage.split(' ');\n  if (words.length >= 3) {\n    businessType = words.slice(0, -2).join(' ');\n    city = words.slice(-2).join(' ');\n  } else {\n    businessType = words[0] || 'restaurant';\n    city = words[1] || 'San Francisco';\n  }\n}\n\n// Clean up formatting\nbusinessType = businessType.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\ncity = city.replace(/[^a-zA-Z0-9\\s,]/g, '').trim();\nserviceOffering = serviceOffering.replace(/[^a-zA-Z0-9\\s]/g, '').trim();\n\n// Determine country code\nif (city.toLowerCase().includes('ca') || city.toLowerCase().includes('california') || \n    city.toLowerCase().includes('ny') || city.toLowerCase().includes('texas') ||\n    city.toLowerCase().includes('florida') || city.toLowerCase().includes('usa')) {\n  countryCode = 'us';\n} else if (city.toLowerCase().includes('london') || city.toLowerCase().includes('uk') || \n           city.toLowerCase().includes('england')) {\n  countryCode = 'gb';\n} else if (city.toLowerCase().includes('paris') || city.toLowerCase().includes('france')) {\n  countryCode = 'fr';\n} else if (city.toLowerCase().includes('toronto') || city.toLowerCase().includes('canada')) {\n  countryCode = 'ca';\n}\n\n// Generate service descriptions based on common offerings\nconst serviceMap = {\n  'digital marketing': 'comprehensive digital marketing services including SEO, social media management, and online advertising to grow your business',\n  'seo': 'search engine optimization services to improve Google rankings and drive more organic traffic to your website',\n  'voice ai': 'AI-powered voice automation solutions for customer service, appointment booking, and phone call management',\n  'website development': 'professional website design and development services to create a modern, conversion-focused online presence',\n  'social media': 'social media management and content creation services to build your brand and engage customers online',\n  'lead generation': 'targeted lead generation and customer acquisition solutions to grow your client base consistently',\n  'automation': 'business process automation solutions to streamline operations, reduce costs, and improve efficiency',\n  'chatbot': 'AI chatbot development for 24/7 customer support, lead qualification, and customer engagement',\n  'ppc': 'pay-per-click advertising management for Google Ads, Facebook Ads, and other platforms to drive immediate results',\n  'content marketing': 'strategic content creation and marketing services to attract and convert your ideal customers',\n  'email marketing': 'automated email marketing campaigns and newsletter management to nurture leads and retain customers',\n  'crm': 'customer relationship management system setup and optimization to better manage your sales pipeline',\n  'web design': 'modern, responsive website design and user experience optimization to convert more visitors into customers',\n  'branding': 'brand identity development and marketing collateral design to establish a strong market presence'\n};\n\n// Match service offering to description\nfor (const [key, description] of Object.entries(serviceMap)) {\n  if (serviceOffering.includes(key)) {\n    serviceDescription = description;\n    break;\n  }\n}\n\n// Default service if none specified\nif (!serviceOffering) {\n  serviceOffering = 'digital marketing';\n  serviceDescription = 'digital marketing services to help grow your business online and attract more customers';\n}\n\nreturn {\n  json: {\n    chatId: chatId,\n    userId: userId,\n    userName: userName,\n    originalMessage: message,\n    businessType: businessType,\n    city: city,\n    countryCode: countryCode,\n    serviceOffering: serviceOffering,\n    serviceDescription: serviceDescription,\n    searchQuery: `${businessType} ${city}`,\n    searchContext: `Looking for ${businessType} in ${city} to offer ${serviceOffering} services`,\n    timestamp: new Date().toISOString()\n  }\n};"
+      },
+      "id": "c8e9f0a1-2b3c-4d5e-6f78-90abcdef1234",
+      "name": "Parse Business Search & Service Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "🎯 **AI Lead Generation Started!**\n\n🔍 **Searching:** {{ $json.businessType }} in {{ $json.city }}\n💼 **Service:** {{ $json.serviceOffering }}\n🎨 **Focus:** {{ $json.serviceDescription }}\n\n⏳ *Processing with AI enrichment...*\n⏱️ *This will take 2-3 minutes*\n\n🤖 I'll gather business data, analyze opportunities, and create personalized outreach messages for you!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "d9f0a1b2-3c4d-5e6f-7890-abcdef123456",
+      "name": "Send Search Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/compass/google-maps-scraper/run-sync-get-dataset-items",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"startUrls\": [\n    {\n      \"url\": \"https://www.google.com/maps/search/{{ $json.businessType.replace(' ', '+') }}+{{ $json.city.replace(' ', '+') }}\"\n    }\n  ],\n  \"searchStringsArray\": [\"{{ $json.businessType }}\"],\n  \"locationQuery\": \"{{ $json.city }}, {{ $json.countryCode.toUpperCase() }}\",\n  \"maxCrawledPlacesPerSearch\": 20,\n  \"language\": \"en\",\n  \"countryCode\": \"{{ $json.countryCode }}\",\n  \"currency\": \"USD\",\n  \"includeHistogram\": false,\n  \"includeOpeningHours\": true,\n  \"includePeopleAlsoSearch\": false,\n  \"maxReviews\": 5,\n  \"maxImages\": 1,\n  \"exportPlaceUrls\": false,\n  \"additionalInfo\": false,\n  \"reviewsSort\": \"newest\",\n  \"skipClosedPlaces\": false\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_APIFY_TOKEN"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "e0f1a2b3-4c5d-6e7f-8901-bcdef2345678",
+      "name": "🗺️ Scrape Google Maps with Apify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process and clean the Apify Google Maps results\nconst results = $json;\nconst processedData = [];\n\n// Handle both single result and array of results\nconst businesses = Array.isArray(results) ? results : [results];\n\nfor (const business of businesses) {\n  if (!business || !business.title) continue;\n  \n  // Clean and extract data\n  const processed = {\n    businessName: business.title || '',\n    address: business.address || business.location?.address || '',\n    phone: business.phoneNumber || business.phone || '',\n    website: business.website || business.url || '',\n    rating: business.totalScore || business.rating || '',\n    reviewCount: business.reviewsCount || business.reviews || business.totalScore || '',\n    category: business.categoryName || business.category || business.categories?.[0] || '',\n    googleMapsUrl: business.url || business.link || '',\n    priceLevel: business.priceLevel || '',\n    isOpen: business.isOpen || business.temporarilyClosedUntil || 'Unknown',\n    \n    // Coordinates if available\n    latitude: business.location?.lat || business.latitude || '',\n    longitude: business.location?.lng || business.longitude || '',\n    \n    // Additional details\n    description: business.description || '',\n    imageUrl: business.imageUrl || business.photos?.[0] || '',\n    \n    // Fields for social media enrichment (to be filled by AI)\n    linkedinUrl: '',\n    twitterHandle: '',\n    facebookUrl: '',\n    instagramHandle: '',\n    \n    // AI-generated fields (to be filled by AI agent)\n    aiBusinessDescription: '',\n    targetAudience: '',\n    painPoints: '',\n    serviceOpportunity: '',\n    serviceFitScore: '',\n    urgencyLevel: '',\n    competitorAnalysis: '',\n    valueProposition: '',\n    outreachAngle: '',\n    personalizedMessage: '',\n    \n    // Metadata\n    scrapedAt: new Date().toISOString(),\n    enrichmentStatus: 'pending',\n    contactStatus: 'Not Contacted',\n    \n    // Service context from original search\n    serviceOffering: $('Parse Business Search & Service Request').first().json.serviceOffering,\n    serviceDescription: $('Parse Business Search & Service Request').first().json.serviceDescription,\n    searchCity: $('Parse Business Search & Service Request').first().json.city,\n    searchBusinessType: $('Parse Business Search & Service Request').first().json.businessType\n  };\n  \n  // Only add businesses with valid names and some contact info\n  if (processed.businessName && (processed.phone || processed.website || processed.address)) {\n    processedData.push(processed);\n  }\n}\n\n// Log summary\nconsole.log(`Processed ${processedData.length} businesses from Google Maps`);\n\nreturn processedData.map(item => ({json: item}));"
+      },
+      "id": "f1a2b3c4-5d6e-7f89-0123-cdef34567890",
+      "name": "Process & Clean Google Maps Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced social media profile detection and URL generation\nconst business = $json;\nlet enrichedBusiness = {...business};\n\n// Generate likely social media profiles based on business name and website\nif (business.businessName) {\n  const cleanName = business.businessName\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s]/g, '')\n    .replace(/\\s+/g, '');\n  \n  const cleanNameWithDashes = business.businessName\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s]/g, '')\n    .replace(/\\s+/g, '-');\n  \n  // Generate likely social media URLs\n  enrichedBusiness.linkedinUrl = `https://www.linkedin.com/company/${cleanNameWithDashes}`;\n  enrichedBusiness.twitterHandle = `@${cleanName}`;\n  enrichedBusiness.facebookUrl = `https://www.facebook.com/${cleanName}`;\n  enrichedBusiness.instagramHandle = `@${cleanName}`;\n  \n  // If website exists, try to extract domain for better social media guessing\n  if (business.website) {\n    try {\n      const domain = business.website\n        .replace(/https?:\\/\\//g, '')\n        .split('/')[0]\n        .replace(/www\\./g, '')\n        .split('.')[0];\n      \n      enrichedBusiness.linkedinUrl = `https://www.linkedin.com/company/${domain}`;\n      enrichedBusiness.twitterHandle = `@${domain}`;\n      enrichedBusiness.facebookUrl = `https://www.facebook.com/${domain}`;\n      enrichedBusiness.instagramHandle = `@${domain}`;\n    } catch (error) {\n      console.log('Could not parse website domain for', business.businessName);\n    }\n  }\n}\n\n// Mark for AI enrichment\nenrichedBusiness.needsAiEnrichment = true;\nenrichedBusiness.socialMediaGenerated = true;\n\nreturn {json: enrichedBusiness};"
+      },
+      "id": "a2b3c4d5-6e7f-8901-2345-def456789012",
+      "name": "🔍 Generate Social Media Profiles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "text": "=Business Analysis Request:\n\nBusiness Name: {{ $json.businessName }}\nCategory: {{ $json.category }}\nAddress: {{ $json.address }}\nWebsite: {{ $json.website }}\nPhone: {{ $json.phone }}\nRating: {{ $json.rating }} ({{ $json.reviewCount }} reviews)\nPrice Level: {{ $json.priceLevel }}\nCurrently Open: {{ $json.isOpen }}\n\nSERVICE CONTEXT:\nTarget Service: {{ $json.serviceOffering }}\nService Description: {{ $json.serviceDescription }}\nTarget Location: {{ $json.searchCity }}\nBusiness Type Focus: {{ $json.searchBusinessType }}\n\nPlease analyze this business for {{ $json.serviceOffering }} service opportunities and provide detailed insights.",
+        "options": {
+          "systemMessage": "You are an expert business intelligence analyst specializing in service-specific lead qualification and opportunity assessment.\n\nAnalyze the provided business information and generate comprehensive insights specifically tailored to the service offering mentioned. Consider the business type, location, current performance indicators, and how the specific service could benefit them.\n\nProvide your analysis in the following JSON format:\n\n{\n  \"businessDescription\": \"2-sentence description of what this business does and their market position\",\n  \"targetAudience\": \"Who their typical customers are and demographics\",\n  \"painPoints\": \"3-5 specific challenges this business likely faces that the service can address\",\n  \"serviceOpportunity\": \"Detailed explanation of how the specific service can benefit this business\",\n  \"serviceFitScore\": \"Numerical score 1-10 indicating how well the service fits this business\",\n  \"urgencyLevel\": \"low/medium/high - how urgently they likely need this service\",\n  \"competitorAnalysis\": \"Analysis of their competitive landscape and challenges\",\n  \"valueProposition\": \"Specific value the service brings to this type of business\",\n  \"outreachAngle\": \"Best approach for initial contact with this specific service\",\n  \"keySellingPoints\": \"Top 3 selling points that would resonate with this business\",\n  \"potentialROI\": \"Expected return on investment or business impact\",\n  \"objectionHandling\": \"Likely objections they might have and how to address them\"\n}\n\nFocus specifically on how the mentioned service can solve real problems for this business type and create measurable value."
+        },
+        "hasOutputParser": true
+      },
+      "id": "b3c4d5e6-7f89-0123-4567-ef890123456a",
+      "name": "🤖 AI Business Intelligence & Service Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "c4d5e6f7-8901-2345-6789-f01234567890",
+      "name": "OpenAI GPT-4 Analysis Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials",
+          "name": "OpenAI API Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"businessDescription\": \"A family-owned Italian restaurant serving authentic cuisine to local diners and tourists in downtown area\",\n  \"targetAudience\": \"Local families, young professionals, tourists, date night couples aged 25-55\",\n  \"painPoints\": \"Limited online visibility, inconsistent social media presence, difficulty attracting new customers, seasonal revenue fluctuations\",\n  \"serviceOpportunity\": \"Digital marketing can significantly increase online orders, improve local search rankings, and create consistent customer acquisition through social media and Google Ads\",\n  \"serviceFitScore\": \"8\",\n  \"urgencyLevel\": \"high\",\n  \"competitorAnalysis\": \"Competing with 5-10 other restaurants in area, most have basic websites but limited digital marketing\",\n  \"valueProposition\": \"Increase revenue 20-40% through improved online presence and targeted customer acquisition\",\n  \"outreachAngle\": \"Focus on increasing online orders and local visibility during slow seasons\",\n  \"keySellingPoints\": \"Local SEO dominance, social media engagement, online ordering optimization\",\n  \"potentialROI\": \"3-5x return on marketing investment within 6 months\",\n  \"objectionHandling\": \"Address budget concerns by showing competitor success and offering performance-based pricing\"\n}"
+      },
+      "id": "d5e6f789-0123-4567-890a-123456789012",
+      "name": "Structured AI Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "text": "=PERSONALIZED OUTREACH MESSAGE GENERATION\n\nBUSINESS DETAILS:\nName: {{ $json.businessName }}\nCategory: {{ $json.category }}\nLocation: {{ $json.address }}\nWebsite: {{ $json.website }}\nRating: {{ $json.rating }}/5 ({{ $json.reviewCount }} reviews)\nPhone: {{ $json.phone }}\n\nSERVICE OFFERING:\nService: {{ $json.serviceOffering }}\nDescription: {{ $json.serviceDescription }}\n\nAI BUSINESS ANALYSIS:\nBusiness Description: {{ $json.output.businessDescription }}\nTarget Audience: {{ $json.output.targetAudience }}\nKey Pain Points: {{ $json.output.painPoints }}\nService Opportunity: {{ $json.output.serviceOpportunity }}\nService Fit Score: {{ $json.output.serviceFitScore }}/10\nUrgency Level: {{ $json.output.urgencyLevel }}\nValue Proposition: {{ $json.output.valueProposition }}\nOutreach Angle: {{ $json.output.outreachAngle }}\nKey Selling Points: {{ $json.output.keySellingPoints }}\nPotential ROI: {{ $json.output.potentialROI }}\n\nGenerate a highly personalized cold outreach message for this specific business and service combination.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a world-class copywriter specializing in cold outreach that gets responses. Create a highly personalized first contact message based on the comprehensive business analysis provided.\n\nYour message should be:\n\n📋 REQUIREMENTS:\n• Specifically mention the business name and location\n• Reference their rating/reviews if good (4+ stars)\n• Address their specific pain points identified by AI\n• Highlight the exact service benefit for their business type\n• Include social proof or credibility indicator\n• Professional but conversational tone\n• 2-3 sentences maximum (under 150 words)\n• End with a soft, specific call-to-action\n• Avoid generic sales language\n• Sound like it's from a real person, not a bot\n\n🎯 SERVICE-SPECIFIC FOCUS:\n• Digital Marketing: Online visibility, customer acquisition, ROI\n• Voice AI: Automation, efficiency, cost savings, customer experience\n• SEO: Search rankings, organic traffic, local visibility\n• Website Development: Modern design, conversions, user experience\n• Lead Generation: Customer acquisition, sales pipeline, growth\n• Social Media: Brand awareness, engagement, community building\n• Automation: Process efficiency, time savings, scalability\n\n📈 PROVEN PATTERNS:\n• Compliment → Problem → Solution → Soft CTA\n• \"I noticed [specific detail] about [business name]...\"\n• \"I help [business type] in [location] [specific benefit]...\"\n• \"Would you be interested in a quick [specific offer]?\"\n\n🚫 AVOID:\n• Generic greetings\n• Obvious spam language\n• Pushy sales tone\n• Long paragraphs\n• Multiple CTAs\n• Unrealistic promises\n\nReturn ONLY the message text, no subject line or signatures."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "id": "e6f78901-2345-6789-012a-23456789012b",
+      "name": "✍️ Generate Personalized Outreach Message",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.8
+        }
+      },
+      "id": "f7890123-4567-890a-123b-3456789012cd",
+      "name": "OpenAI GPT-4 Message Generator",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1780,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials",
+          "name": "OpenAI API Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "id": "890123ab-cdef-1234-5678-90abcdef1234",
+      "name": "Merge Business Data with AI Analysis",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "business-name",
+              "name": "Business Name",
+              "type": "string",
+              "value": "={{ $json.businessName }}"
+            },
+            {
+              "id": "category",
+              "name": "Category",
+              "type": "string",
+              "value": "={{ $json.category }}"
+            },
+            {
+              "id": "address",
+              "name": "Address",
+              "type": "string",
+              "value": "={{ $json.address }}"
+            },
+            {
+              "id": "phone",
+              "name": "Phone",
+              "type": "string",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "string",
+              "value": "={{ $json.website }}"
+            },
+            {
+              "id": "rating",
+              "name": "Google Rating",
+              "type": "string",
+              "value": "={{ $json.rating }}"
+            },
+            {
+              "id": "review-count",
+              "name": "Review Count",
+              "type": "string",
+              "value": "={{ $json.reviewCount }}"
+            },
+            {
+              "id": "google-maps-url",
+              "name": "Google Maps URL",
+              "type": "string",
+              "value": "={{ $json.googleMapsUrl }}"
+            },
+            {
+              "id": "linkedin-url",
+              "name": "LinkedIn URL",
+              "type": "string",
+              "value": "={{ $json.linkedinUrl }}"
+            },
+            {
+              "id": "service-offering",
+              "name": "Service Offering",
+              "type": "string",
+              "value": "={{ $json.serviceOffering }}"
+            },
+            {
+              "id": "service-description",
+              "name": "Service Description",
+              "type": "string",
+              "value": "={{ $json.serviceDescription }}"
+            },
+            {
+              "id": "ai-business-description",
+              "name": "AI Business Analysis",
+              "type": "string",
+              "value": "={{ $json.output.businessDescription }}"
+            },
+            {
+              "id": "target-audience",
+              "name": "Target Audience",
+              "type": "string",
+              "value": "={{ $json.output.targetAudience }}"
+            },
+            {
+              "id": "pain-points",
+              "name": "Pain Points",
+              "type": "string",
+              "value": "={{ $json.output.painPoints }}"
+            },
+            {
+              "id": "service-opportunity",
+              "name": "Service Opportunity",
+              "type": "string",
+              "value": "={{ $json.output.serviceOpportunity }}"
+            },
+            {
+              "id": "service-fit-score",
+              "name": "Service Fit Score",
+              "type": "string",
+              "value": "={{ $json.output.serviceFitScore }}/10"
+            },
+            {
+              "id": "urgency-level",
+              "name": "Urgency Level",
+              "type": "string",
+              "value": "={{ $json.output.urgencyLevel }}"
+            },
+            {
+              "id": "value-proposition",
+              "name": "Value Proposition",
+              "type": "string",
+              "value": "={{ $json.output.valueProposition }}"
+            },
+            {
+              "id": "key-selling-points",
+              "name": "Key Selling Points",
+              "type": "string",
+              "value": "={{ $json.output.keySellingPoints }}"
+            },
+            {
+              "id": "potential-roi",
+              "name": "Potential ROI",
+              "type": "string",
+              "value": "={{ $json.output.potentialROI }}"
+            },
+            {
+              "id": "personalized-outreach-message",
+              "name": "Personalized Outreach Message",
+              "type": "string",
+              "value": "={{ $('Generate Personalized Outreach Message').item.json.text }}"
+            },
+            {
+              "id": "contact-status",
+              "name": "Contact Status",
+              "type": "string",
+              "value": "Not Contacted"
+            },
+            {
+              "id": "lead-quality",
+              "name": "Lead Quality",
+              "type": "string",
+              "value": "={{ $json.output.serviceFitScore >= '8' ? 'High' : $json.output.serviceFitScore >= '6' ? 'Medium' : 'Low' }}"
+            },
+            {
+              "id": "next-steps",
+              "name": "Recommended Next Steps",
+              "type": "string",
+              "value": "={{ $json.output.urgencyLevel === 'high' ? 'Priority Follow-up' : $json.output.urgencyLevel === 'medium' ? 'Standard Follow-up' : 'Low Priority Follow-up' }}"
+            },
+            {
+              "id": "date-added",
+              "name": "Date Added",
+              "type": "string",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+            },
+            {
+              "id": "search-query",
+              "name": "Original Search Query",
+              "type": "string",
+              "value": "={{ $('Parse Business Search & Service Request').first().json.originalMessage }}"
+            }
+          ]
+        }
+      },
+      "id": "90123abc-def1-2345-6789-0abcdef12345",
+      "name": "Format Data for Google Sheets",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "columns": {
+          "value": {
+            "Business Name": "={{ $json['Business Name'] }}",
+            "Category": "={{ $json['Category'] }}",
+            "Address": "={{ $json['Address'] }}",
+            "Phone": "={{ $json['Phone'] }}",
+            "Website": "={{ $json['Website'] }}",
+            "Google Rating": "={{ $json['Google Rating'] }}",
+            "Review Count": "={{ $json['Review Count'] }}",
+            "Google Maps URL": "={{ $json['Google Maps URL'] }}",
+            "LinkedIn URL": "={{ $json['LinkedIn URL'] }}",
+            "Service Offering": "={{ $json['Service Offering'] }}",
+            "Service Description": "={{ $json['Service Description'] }}",
+            "AI Business Analysis": "={{ $json['AI Business Analysis'] }}",
+            "Target Audience": "={{ $json['Target Audience'] }}",
+            "Pain Points": "={{ $json['Pain Points'] }}",
+            "Service Opportunity": "={{ $json['Service Opportunity'] }}",
+            "Service Fit Score": "={{ $json['Service Fit Score'] }}",
+            "Urgency Level": "={{ $json['Urgency Level'] }}",
+            "Value Proposition": "={{ $json['Value Proposition'] }}",
+            "Key Selling Points": "={{ $json['Key Selling Points'] }}",
+            "Potential ROI": "={{ $json['Potential ROI'] }}",
+            "Personalized Outreach Message": "={{ $json['Personalized Outreach Message'] }}",
+            "Contact Status": "={{ $json['Contact Status'] }}",
+            "Lead Quality": "={{ $json['Lead Quality'] }}",
+            "Recommended Next Steps": "={{ $json['Recommended Next Steps'] }}",
+            "Date Added": "={{ $json['Date Added'] }}",
+            "Original Search Query": "={{ $json['Original Search Query'] }}"
+          },
+          "schema": [
+            {"id": "Business Name", "type": "string", "display": true, "required": false, "displayName": "Business Name", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Category", "type": "string", "display": true, "required": false, "displayName": "Category", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Address", "type": "string", "display": true, "required": false, "displayName": "Address", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Phone", "type": "string", "display": true, "required": false, "displayName": "Phone", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Website", "type": "string", "display": true, "required": false, "displayName": "Website", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Google Rating", "type": "string", "display": true, "required": false, "displayName": "Google Rating", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Review Count", "type": "string", "display": true, "required": false, "displayName": "Review Count", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Google Maps URL", "type": "string", "display": true, "required": false, "displayName": "Google Maps URL", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "LinkedIn URL", "type": "string", "display": true, "required": false, "displayName": "LinkedIn URL", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Offering", "type": "string", "display": true, "required": false, "displayName": "Service Offering", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Description", "type": "string", "display": true, "required": false, "displayName": "Service Description", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "AI Business Analysis", "type": "string", "display": true, "required": false, "displayName": "AI Business Analysis", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Target Audience", "type": "string", "display": true, "required": false, "displayName": "Target Audience", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Pain Points", "type": "string", "display": true, "required": false, "displayName": "Pain Points", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Opportunity", "type": "string", "display": true, "required": false, "displayName": "Service Opportunity", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Service Fit Score", "type": "string", "display": true, "required": false, "displayName": "Service Fit Score", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Urgency Level", "type": "string", "display": true, "required": false, "displayName": "Urgency Level", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Value Proposition", "type": "string", "display": true, "required": false, "displayName": "Value Proposition", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Key Selling Points", "type": "string", "display": true, "required": false, "displayName": "Key Selling Points", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Potential ROI", "type": "string", "display": true, "required": false, "displayName": "Potential ROI", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Personalized Outreach Message", "type": "string", "display": true, "required": false, "displayName": "Personalized Outreach Message", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Contact Status", "type": "string", "display": true, "required": false, "displayName": "Contact Status", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Lead Quality", "type": "string", "display": true, "required": false, "displayName": "Lead Quality", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Recommended Next Steps", "type": "string", "display": true, "required": false, "displayName": "Recommended Next Steps", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Date Added", "type": "string", "display": true, "required": false, "displayName": "Date Added", "defaultMatch": false, "canBeUsedToMatch": true},
+            {"id": "Original Search Query", "type": "string", "display": true, "required": false, "displayName": "Original Search Query", "defaultMatch": false, "canBeUsedToMatch": true}
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0123abcd-ef12-3456-789a-bcdef1234567",
+      "name": "💾 Save Enriched Leads to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2440,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-credentials",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "1234bcde-f123-4567-89ab-cdef23456789",
+      "name": "Aggregate Results for Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Business Search & Service Request').first().json.chatId }}",
+        "text": "✅ **AI Lead Generation Complete!**\n\n🎯 **Search Results for:** {{ $('Parse Business Search & Service Request').first().json.businessType }} in {{ $('Parse Business Search & Service Request').first().json.city }}\n💼 **Service Focus:** {{ $('Parse Business Search & Service Request').first().json.serviceOffering }}\n\n📊 **Results Summary:**\n• **Total Businesses Found:** {{ $json.itemCount }}\n• **AI Analysis Completed:** ✅\n• **Social Media Profiles Generated:** ✅\n• **Personalized Messages Created:** ✅\n• **All Data Saved to Google Sheets:** ✅\n\n🚀 **What's Included:**\n✓ Complete business contact information\n✓ AI-powered business insights\n✓ Service fit scoring (1-10)\n✓ Pain point analysis\n✓ Personalized outreach messages\n✓ LinkedIn profile suggestions\n✓ Lead quality rating\n✓ Recommended next steps\n\n📈 **Next Steps:**\n1. Review your Google Sheets for complete lead database\n2. Start with \"High\" quality leads first\n3. Use the personalized messages for outreach\n4. Track responses and update contact status\n\n💡 **Pro Tip:** Focus on leads with 8+ service fit scores and \"high\" urgency levels for best conversion rates!\n\n🔗 Check your Google Sheets now for the complete lead database with AI-generated outreach messages!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "2345cdef-1234-5678-90ab-def345678901",
+      "name": "📊 Send Complete Results Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2880,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram-credentials",
+          "name": "Telegram Bot API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Business Search Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Business Search & Service Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Business Search & Service Request": {
+      "main": [
+        [
+          {
+            "node": "Send Search Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Search Confirmation": {
+      "main": [
+        [
+          {
+            "node": "🗺️ Scrape Google Maps with Apify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🗺️ Scrape Google Maps with Apify": {
+      "main": [
+        [
+          {
+            "node": "Process & Clean Google Maps Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Clean Google Maps Data": {
+      "main": [
+        [
+          {
+            "node": "🔍 Generate Social Media Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 Generate Social Media Profiles": {
+      "main": [
+        [
+          {
+            "node": "🤖 AI Business Intelligence & Service Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Business Data with AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 AI Business Intelligence & Service Analysis": {
+      "main": [
+        [
+          {
+            "node": "✍️ Generate Personalized Outreach Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Analysis Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "🤖 AI Business Intelligence & Service Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured AI Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "🤖 AI Business Intelligence & Service Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✍️ Generate Personalized Outreach Message": {
+      "main": [
+        [
+          {
+            "node": "Merge Business Data with AI Analysis",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Message Generator": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "✍️ Generate Personalized Outreach Message",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Business Data with AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Format Data for Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data for Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "💾 Save Enriched Leads to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Save Enriched Leads to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Results for Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results for Summary": {
+      "main": [
+        [
+          {
+            "node": "📊 Send Complete Results Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {},
+  "tags": [
+    {
+      "id": "lead-generation",
+      "name": "Lead Generation"
+    },
+    {
+      "id": "ai-powered",
+      "name": "AI Powered"
+    },
+    {
+      "id": "google-maps",
+      "name": "Google Maps"
+    },
+    {
+      "id": "telegram-bot",
+      "name": "Telegram Bot"
+    }
+  ]
+}

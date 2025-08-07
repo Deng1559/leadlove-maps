@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:leadlove-maps.lovable.app)",
+      "Bash(powershell:*)"
+    ],
+    "deny": []
+  }
+}

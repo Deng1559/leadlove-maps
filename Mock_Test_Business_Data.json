@@ -1,0 +1,65 @@
+{
+  "mockGoogleMapsData": {
+    "businessName": "Sophia's Mediterranean Grill",
+    "category": "Mediterranean Restaurant", 
+    "address": "1247 Lincoln Road, Miami Beach, FL 33139",
+    "phone": "(305) 674-8855",
+    "website": "https://sophiasmedgrill.com",
+    "rating": 4.2,
+    "reviewCount": 189,
+    "priceLevel": "$$",
+    "isOpen": true,
+    "googleMapsUrl": "https://maps.google.com/place/sophias-med-grill",
+    "imageUrl": "https://example.com/sophia-restaurant.jpg",
+    "description": "Family-owned Mediterranean restaurant serving authentic Greek and Lebanese cuisine since 2018",
+    "recentReviews": [
+      {
+        "stars": 5,
+        "text": "Amazing food and atmosphere! The staff was incredibly friendly and knowledgeable about the menu. The lamb was cooked to perfection.",
+        "date": "2024-01-15"
+      },
+      {
+        "stars": 2,
+        "text": "Food was decent but we had to wait 25 minutes just to place our order. Called ahead but they said they don't take phone orders during dinner rush. Very frustrating.",
+        "date": "2024-01-10"
+      },
+      {
+        "stars": 4,
+        "text": "Great authentic Mediterranean food! Parking can be tricky on Lincoln Road but worth it. The hummus and falafel were excellent.",
+        "date": "2024-01-08"
+      },
+      {
+        "stars": 1,
+        "text": "Tried calling three times during lunch to ask about vegan options - no one answered. Finally went in person and found out they have several vegan dishes. Why not answer the phone?",
+        "date": "2024-01-05"
+      },
+      {
+        "stars": 5,
+        "text": "Hidden gem on Lincoln Road! The owner Sophia personally came to our table to check on us. Authentic Greek flavors and generous portions.",
+        "date": "2024-01-03"
+      },
+      {
+        "stars": 3,
+        "text": "Food is good but service can be slow during tourist season. Had to flag down our server multiple times. Lincoln Road gets so busy in winter.",
+        "date": "2023-12-28"
+      },
+      {
+        "stars": 4,
+        "text": "Excellent Greek food! Only complaint is they don't seem to have online ordering which would be convenient for takeout.",
+        "date": "2023-12-20"
+      },
+      {
+        "stars": 2,
+        "text": "Called during happy hour to ask about reservations - phone rang and rang. Eventually gave up and went somewhere else. Lost a customer.",
+        "date": "2023-12-15"
+      }
+    ]
+  },
+  "userSearchQuery": {
+    "originalMessage": "mediterranean restaurants Miami Beach for digital marketing",
+    "businessType": "mediterranean restaurants",
+    "city": "Miami Beach", 
+    "serviceOffering": "digital marketing",
+    "serviceDescription": "comprehensive digital marketing services including SEO, social media management, and online advertising to grow your business"
+  }
+}

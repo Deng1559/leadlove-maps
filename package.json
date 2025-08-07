@@ -1,0 +1,30 @@
+{
+  "name": "leadlove-maps-testing",
+  "version": "2.0.0",
+  "description": "LeadLove Maps Enhanced Dual-Input System Testing Framework",
+  "main": "test-runner.js",
+  "scripts": {
+    "test": "node test-runner.js",
+    "test:workflow": "node test-workflow-validation.js",
+    "test:server": "node test-environment-setup.js",
+    "validate": "node build-validation.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "n8n",
+    "telegram",
+    "google-maps",
+    "lead-generation",
+    "testing"
+  ],
+  "author": "LeadLove Maps Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
