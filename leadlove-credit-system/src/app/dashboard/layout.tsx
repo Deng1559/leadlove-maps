@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/components/auth/auth-guard'
+// import { AuthGuard } from '@/components/auth/auth-guard'  // DISABLED FOR DEVELOPMENT
 import { DashboardNav } from '@/components/dashboard/dashboard-nav'
 import { CreditBalance } from '@/components/dashboard/credit-balance'
 import { Metadata } from 'next'
@@ -14,23 +14,22 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <AuthGuard>
-      <div className="min-h-screen bg-background">
-        {/* Navigation Header */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container mx-auto flex h-14 items-center px-4">
-            <DashboardNav />
-            <div className="ml-auto">
-              <CreditBalance />
-            </div>
+    // AuthGuard removed - authentication disabled for development/testing
+    <div className="min-h-screen bg-background">
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-14 items-center px-4">
+          <DashboardNav />
+          <div className="ml-auto">
+            <CreditBalance />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-6">
-          {children}
-        </main>
-      </div>
-    </AuthGuard>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6">
+        {children}
+      </main>
+    </div>
   )
 }

@@ -16,7 +16,19 @@ import {
 import Link from 'next/link'
 
 export function QuickActions() {
-  const { profile } = useAuth()
+  // Handle case where authentication is disabled
+  let profile
+  try {
+    const authHook = useAuth()
+    profile = authHook?.profile
+  } catch (error) {
+    // Authentication providers not available - use default values
+    profile = { 
+      credits_available: 1000,
+      credits_used: 50,
+      subscription_status: 'active'
+    }
+  }
 
   const actions = [
     {

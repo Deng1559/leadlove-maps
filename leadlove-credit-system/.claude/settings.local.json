@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:leadlove-maps.lovable.app)",
+      "Bash(node:*)"
+    ],
+    "deny": []
+  }
+}

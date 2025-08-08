@@ -8,10 +8,20 @@ import { CreditCard, Plus, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 export function CreditBalance() {
-  const { profile } = useAuth()
-  const { credits } = useCredits()
+  // Handle case where authentication is disabled
+  let profile, credits
+  try {
+    const authHook = useAuth()
+    const creditsHook = useCredits()
+    profile = authHook?.profile
+    credits = creditsHook?.credits
+  } catch (error) {
+    // Authentication providers not available - use default values
+    profile = null
+    credits = null
+  }
 
-  const displayCredits = credits ?? profile?.credits_available ?? 0
+  const displayCredits = credits ?? profile?.credits_available ?? 1000 // Default credits for testing
 
   const getBalanceColor = (balance: number) => {
     if (balance <= 5) return 'destructive'

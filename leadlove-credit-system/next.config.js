@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -20,7 +17,7 @@ const nextConfig = {
     ],
   },
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
+    CUSTOM_KEY: process.env.CUSTOM_KEY || 'development',
   },
   async headers() {
     return [

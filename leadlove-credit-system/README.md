@@ -8,7 +8,7 @@ A full-stack AI SaaS platform for generating qualified leads from Google Maps bu
 - **Lead Generation**: Transform Google Maps business listings into qualified leads
 - **AI-Powered Email Sequences**: Generate personalized outreach campaigns
 - **Dual Access System**: Web frontend (credit-based) + Telegram integration (private API key)
-- **Real-time Processing**: n8n workflow integration with status tracking
+- **Real-time Processing**: LeadLove Maps API integration with status tracking
 - **Usage Analytics**: Comprehensive tracking and reporting
 
 ### Credit System
@@ -35,7 +35,7 @@ A full-stack AI SaaS platform for generating qualified leads from Google Maps bu
 ### Backend
 - **Supabase**: PostgreSQL database with real-time subscriptions
 - **Stripe API**: Payment processing and subscription management
-- **n8n Integration**: Workflow automation platform
+- **LeadLove Maps API**: External lead generation service integration
 - **Vercel**: Serverless deployment platform
 
 ### Database Schema
@@ -51,7 +51,7 @@ A full-stack AI SaaS platform for generating qualified leads from Google Maps bu
 - Node.js 18+
 - Supabase account and project
 - Stripe account (test mode for development)
-- n8n instance running
+- Access to LeadLove Maps API
 
 ### Environment Setup
 
@@ -83,8 +83,9 @@ A full-stack AI SaaS platform for generating qualified leads from Google Maps bu
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    LEADLOVE_PRIVATE_API_KEY=your_secure_private_key
 
-   # n8n Integration
-   N8N_WEBHOOK_URL=http://localhost:5678/webhook
+   # LeadLove Maps Integration
+   LEADLOVE_MAPS_API_URL=https://leadlove-maps.lovable.app
+   LEADLOVE_MAPS_API_KEY=your_leadlove_api_key
    ```
 
 ### Database Setup

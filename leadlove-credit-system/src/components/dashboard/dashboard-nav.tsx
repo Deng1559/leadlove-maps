@@ -53,12 +53,28 @@ const navigationItems = [
 
 export function DashboardNav() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { user, profile, signOut } = useAuth()
+  
+  // Handle case where authentication is disabled
+  let user, profile, signOut
+  try {
+    const authHook = useAuth()
+    user = authHook?.user
+    profile = authHook?.profile
+    signOut = authHook?.signOut
+  } catch (error) {
+    // Authentication providers not available - use default values
+    user = { email: 'test@example.com' }
+    profile = { full_name: 'Test User' }
+    signOut = () => Promise.resolve()
+  }
+  
   const router = useRouter()
   const pathname = usePathname()
 
   const handleSignOut = async () => {
-    await signOut()
+    if (signOut) {
+      await signOut()
+    }
     router.push('/')
   }
 

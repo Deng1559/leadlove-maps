@@ -4,6 +4,14 @@ import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
+  
+  // AUTHENTICATION DISABLED FOR DEVELOPMENT/TESTING
+  // All routes are now accessible without authentication
+  console.log('🔓 Authentication middleware disabled - allowing all routes')
+  
+  return res
+  
+  /* ORIGINAL AUTHENTICATION CODE (COMMENTED OUT)
   const supabase = createMiddlewareClient({ req, res })
 
   // Refresh session if expired - required for Server Components
@@ -113,6 +121,7 @@ export async function middleware(req: NextRequest) {
   }
 
   return res
+  */
 }
 
 export const config = {

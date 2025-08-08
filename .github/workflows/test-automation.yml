@@ -1,0 +1,540 @@
+name: Test Automation Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - 'leadlove-credit-system/**'
+      - '.github/workflows/test-automation.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths: 
+      - 'leadlove-credit-system/**'
+      - '.github/workflows/test-automation.yml'
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - unit
+          - e2e
+          - visual
+          - accessibility
+          - security
+          - performance
+          - contract
+
+env:
+  NODE_VERSION: '18'
+  CI: true
+
+jobs:
+  # Pre-flight checks and validation
+  pre-flight:
+    name: Pre-flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should-run-tests: ${{ steps.changes.outputs.tests }}
+      cache-key: ${{ steps.cache-keys.outputs.key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for relevant changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            tests:
+              - 'leadlove-credit-system/**/*.js'
+              - 'leadlove-credit-system/**/*.ts'
+              - 'leadlove-credit-system/**/*.jsx'
+              - 'leadlove-credit-system/**/*.tsx'
+              - 'leadlove-credit-system/**/*.json'
+              - 'leadlove-credit-system/**/*.spec.js'
+              - 'leadlove-credit-system/**/*.test.js'
+              - '.github/workflows/test-automation.yml'
+
+      - name: Generate cache keys
+        id: cache-keys
+        run: |
+          echo "key=node-modules-${{ hashFiles('leadlove-credit-system/package-lock.json') }}" >> $GITHUB_OUTPUT
+
+  # Unit and Integration Tests
+  unit-tests:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npm run type-check
+
+      - name: Run unit tests with coverage
+        run: npm run test:ci
+        env:
+          NODE_ENV: test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          directory: leadlove-credit-system/coverage
+          flags: unit-tests
+          name: unit-test-coverage
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: |
+            leadlove-credit-system/coverage/
+            leadlove-credit-system/test-results/
+          retention-days: 30
+
+  # Cross-Browser E2E Tests
+  e2e-tests:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run E2E tests
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: |
+            leadlove-credit-system/test-results/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Visual Regression Tests
+  visual-tests:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run visual tests
+        run: npx playwright test --project=visual-chromium
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload visual test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-test-results
+          path: |
+            leadlove-credit-system/test-results/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Accessibility Tests
+  accessibility-tests:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm install -D axe-playwright
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run accessibility tests
+        run: npx playwright test --project=accessibility
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload accessibility results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-test-results
+          path: |
+            leadlove-credit-system/test-results/accessibility/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Security Tests
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run dependency vulnerability scan
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run security tests
+        run: npx playwright test __tests__/security/
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload security test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-test-results
+          path: |
+            leadlove-credit-system/test-results/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run performance tests
+        run: npx playwright test __tests__/performance/
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: |
+            leadlove-credit-system/test-results/performance/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Contract Tests
+  contract-tests:
+    name: API Contract Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm install -D ajv ajv-formats
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run contract tests
+        run: npx playwright test __tests__/contract/
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload contract test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-test-results
+          path: |
+            leadlove-credit-system/test-results/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Mobile Tests
+  mobile-tests:
+    name: Mobile E2E Tests
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should-run-tests == 'true'
+    defaults:
+      run:
+        working-directory: leadlove-credit-system
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: leadlove-credit-system/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mobile tests
+        run: |
+          npx playwright test --project="Mobile Chrome"
+          npx playwright test --project="Mobile Safari"
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload mobile test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-test-results
+          path: |
+            leadlove-credit-system/test-results/
+            leadlove-credit-system/playwright-report/
+          retention-days: 30
+
+  # Test Report Generation
+  test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests, visual-tests, accessibility-tests, security-tests, performance-tests, contract-tests, mobile-tests]
+    if: always() && needs.pre-flight.outputs.should-run-tests == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts
+
+      - name: Generate comprehensive test report
+        run: |
+          mkdir -p consolidated-report
+          
+          # Create summary report
+          cat > consolidated-report/test-summary.md << 'EOF'
+          # LeadLove Maps Test Automation Report
+          
+          **Generated**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          **Commit**: ${{ github.sha }}
+          **Branch**: ${{ github.ref_name }}
+          **Event**: ${{ github.event_name }}
+          
+          ## Test Results Summary
+          
+          | Test Suite | Status | Details |
+          |------------|--------|---------|
+          | Unit Tests | ${{ needs.unit-tests.result }} | Code coverage and unit testing |
+          | E2E Tests (Chromium) | ${{ needs.e2e-tests.result }} | Cross-browser compatibility |
+          | Visual Tests | ${{ needs.visual-tests.result }} | Visual regression detection |
+          | Accessibility | ${{ needs.accessibility-tests.result }} | WCAG compliance |
+          | Security | ${{ needs.security-tests.result }} | Security vulnerability scanning |
+          | Performance | ${{ needs.performance-tests.result }} | Performance benchmarking |
+          | Contract Tests | ${{ needs.contract-tests.result }} | API contract validation |
+          | Mobile Tests | ${{ needs.mobile-tests.result }} | Mobile responsiveness |
+          
+          ## Quality Gates
+          
+          - **Code Coverage**: Target ≥ 70%
+          - **Performance**: API responses < 500ms
+          - **Accessibility**: WCAG 2.1 AA compliance
+          - **Security**: No critical vulnerabilities
+          - **Visual**: No unintended UI changes
+          
+          ## Artifacts
+          
+          Test artifacts are available for download for 30 days.
+          EOF
+
+      - name: Upload consolidated test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: consolidated-test-report
+          path: consolidated-report/
+          retention-days: 90
+
+  # Deployment Gate
+  deployment-gate:
+    name: Deployment Quality Gate
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests, visual-tests, accessibility-tests, security-tests, performance-tests, contract-tests, mobile-tests]
+    if: always() && needs.pre-flight.outputs.should-run-tests == 'true'
+    
+    steps:
+      - name: Check test results
+        run: |
+          echo "Checking deployment readiness..."
+          
+          # Critical tests that must pass
+          if [ "${{ needs.unit-tests.result }}" != "success" ]; then
+            echo "❌ Unit tests failed - blocking deployment"
+            exit 1
+          fi
+          
+          if [ "${{ needs.security-tests.result }}" != "success" ]; then
+            echo "❌ Security tests failed - blocking deployment"
+            exit 1
+          fi
+          
+          # Count total failures
+          failures=0
+          
+          [ "${{ needs.e2e-tests.result }}" != "success" ] && ((failures++))
+          [ "${{ needs.visual-tests.result }}" != "success" ] && ((failures++))
+          [ "${{ needs.accessibility-tests.result }}" != "success" ] && ((failures++))
+          [ "${{ needs.performance-tests.result }}" != "success" ] && ((failures++))
+          [ "${{ needs.contract-tests.result }}" != "success" ] && ((failures++))
+          [ "${{ needs.mobile-tests.result }}" != "success" ] && ((failures++))
+          
+          echo "Non-critical failures: $failures"
+          
+          # Allow up to 2 non-critical test failures
+          if [ $failures -gt 2 ]; then
+            echo "❌ Too many test failures ($failures) - blocking deployment"
+            exit 1
+          fi
+          
+          echo "✅ Quality gate passed - deployment approved"
+
+      - name: Set deployment status
+        run: |
+          echo "deployment_ready=true" >> $GITHUB_ENV

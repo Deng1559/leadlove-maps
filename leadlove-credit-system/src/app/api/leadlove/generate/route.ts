@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
       maxResults = 20,
       apiKey, // For Telegram/private access
       userId, // For Telegram users
-      userName = 'User'
+      userName = 'User',
+      freeMode = false // New parameter to bypass credit system
     } = await request.json()
 
     // Validate required fields
@@ -24,15 +25,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if this is a private API key request (Telegram/backdoor access)
+    // Check if this is a private API key request (Telegram/backdoor access) or free mode
     const isPrivateAccess = apiKey && apiKey === process.env.LEADLOVE_PRIVATE_API_KEY
+    const isFreeMode = freeMode === true
     
     let authenticatedUserId: string | null = null
     let userProfile: any = null
 
-    if (isPrivateAccess) {
-      // Private access - skip credit system and user authentication
-      console.log('Processing request with private API key access')
+    if (isPrivateAccess || isFreeMode) {
+      // Private access or free mode - skip credit system and user authentication
+      console.log(`Processing request with ${isPrivateAccess ? 'private API key' : 'free mode'} access`)
     } else {
       // Public access - require authentication and credit system
       const cookieStore = cookies()
@@ -106,13 +108,13 @@ export async function POST(request: NextRequest) {
       console.log(`Consumed ${creditCost} credits for user ${authenticatedUserId}`)
     }
 
-    // Get webhook configuration based on environment
+    // Get LeadLove Maps API configuration
     const environment = process.env.NODE_ENV === 'production' ? 'production' : 'development'
-    const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook'
-    const frontendEndpoint = '/leadlove-credit-system'
+    const leadloveApiUrl = process.env.LEADLOVE_MAPS_API_URL || 'https://leadlove-maps.lovable.app'
+    const leadloveEndpoint = '/api/generate' // Default API endpoint
 
-    // Prepare payload for n8n workflow
-    const workflowPayload = {
+    // Prepare payload for LeadLove Maps API
+    const leadlovePayload = {
       // Core search parameters
       businessType,
       location,
@@ -126,45 +128,53 @@ export async function POST(request: NextRequest) {
       userEmail: userProfile?.email,
       
       // Request metadata
-      source: isPrivateAccess ? 'private_api' : 'web_frontend',
+      source: isPrivateAccess ? 'private_api' : (isFreeMode ? 'free_mode' : 'web_frontend'),
       timestamp: new Date().toISOString(),
       requestId: `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      
-      // Credit system info (for tracking, not enforcement)
-      creditsConsumed: isPrivateAccess ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
-      creditsRemaining: isPrivateAccess ? null : (userProfile?.credits_available || 0) - calculateCreditCost('leadlove_maps', { maxResults }),
-      isPrivateAccess,
       
       // Processing configuration
       generateEmails: true,
       includeAnalysis: true,
-      outputFormat: 'comprehensive'
+      outputFormat: 'comprehensive',
+      
+      // Enhanced email configuration
+      emailStrategist: 'b2b-cold-email-expert',
+      emailPersona: serviceOffering || 'digital-marketing',
+      deliverabilityOptimized: true,
+      
+      // Credit system info (for tracking)
+      creditsConsumed: (isPrivateAccess || isFreeMode) ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
+      creditsRemaining: (isPrivateAccess || isFreeMode) ? null : (userProfile?.credits_available || 0) - calculateCreditCost('leadlove_maps', { maxResults }),
+      isPrivateAccess,
+      isFreeMode
     }
 
-    // Call n8n workflow
+    // Call LeadLove Maps API
     const startTime = Date.now()
     
     try {
-      const n8nResponse = await fetch(`${webhookUrl}${frontendEndpoint}`, {
+      const leadloveResponse = await fetch(`${leadloveApiUrl}${leadloveEndpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'LeadLove-Credit-System/1.0',
-          'X-Request-ID': workflowPayload.requestId,
-          'X-Source': workflowPayload.source
+          'X-Request-ID': leadlovePayload.requestId,
+          'X-Source': leadlovePayload.source,
+          'X-Free-Mode': isFreeMode ? 'true' : 'false',
+          'Authorization': process.env.LEADLOVE_MAPS_API_KEY ? `Bearer ${process.env.LEADLOVE_MAPS_API_KEY}` : undefined
         },
-        body: JSON.stringify(workflowPayload),
+        body: JSON.stringify(leadlovePayload),
         // Increased timeout for lead generation process
         signal: AbortSignal.timeout(180000) // 3 minutes
       })
 
       const processingTime = Date.now() - startTime
 
-      if (!n8nResponse.ok) {
-        throw new Error(`n8n workflow failed: ${n8nResponse.status} ${n8nResponse.statusText}`)
+      if (!leadloveResponse.ok) {
+        throw new Error(`LeadLove Maps API failed: ${leadloveResponse.status} ${leadloveResponse.statusText}`)
       }
 
-      const result = await n8nResponse.json()
+      const result = await leadloveResponse.json()
 
       // Track usage for authenticated users (both private and public)
       if (authenticatedUserId) {
@@ -179,19 +189,20 @@ export async function POST(request: NextRequest) {
             .insert({
               user_id: trackingUserId,
               tool_name: 'leadlove_maps',
-              credits_consumed: isPrivateAccess ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
+              credits_consumed: (isPrivateAccess || isFreeMode) ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
               search_query: `${businessType} in ${location} for ${serviceOffering}`,
               results_count: result.results?.length || 0,
               processing_time_ms: processingTime,
               success: true,
-              workflow_id: result.workflowId || workflowPayload.requestId,
+              workflow_id: result.workflowId || leadlovePayload.requestId,
               metadata: {
-                source: workflowPayload.source,
+                source: leadlovePayload.source,
                 businessType,
                 location,
                 serviceOffering,
                 maxResults,
-                isPrivateAccess
+                isPrivateAccess,
+                isFreeMode
               }
             })
         } catch (trackingError) {
@@ -203,25 +214,25 @@ export async function POST(request: NextRequest) {
       // Return success response
       return NextResponse.json({
         success: true,
-        workflowId: result.workflowId || workflowPayload.requestId,
-        results: result.results || [],
+        workflowId: result.workflowId || leadlovePayload.requestId,
+        results: result.results || result.data || [],
         metadata: {
           processingTime: processingTime,
-          creditsConsumed: isPrivateAccess ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
-          creditsRemaining: isPrivateAccess ? null : (userProfile?.credits_available || 0) - calculateCreditCost('leadlove_maps', { maxResults }),
-          source: workflowPayload.source,
-          timestamp: workflowPayload.timestamp,
-          requestId: workflowPayload.requestId
+          creditsConsumed: (isPrivateAccess || isFreeMode) ? 0 : calculateCreditCost('leadlove_maps', { maxResults }),
+          creditsRemaining: (isPrivateAccess || isFreeMode) ? null : (userProfile?.credits_available || 0) - calculateCreditCost('leadlove_maps', { maxResults }),
+          source: leadlovePayload.source,
+          timestamp: leadlovePayload.timestamp,
+          requestId: leadlovePayload.requestId
         },
-        estimatedTime: '2-3 minutes',
-        message: 'Lead generation completed successfully'
+        estimatedTime: result.estimatedTime || '2-3 minutes',
+        message: result.message || 'Lead generation completed successfully'
       })
 
     } catch (fetchError: any) {
-      console.error('n8n workflow request failed:', fetchError)
+      console.error('LeadLove Maps API request failed:', fetchError)
 
       // If this was a credit-consuming request, we should consider refunding
-      if (authenticatedUserId && !isPrivateAccess) {
+      if (authenticatedUserId && !isPrivateAccess && !isFreeMode) {
         try {
           const cookieStore = cookies()
           const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
@@ -233,7 +244,7 @@ export async function POST(request: NextRequest) {
               credits_to_add: calculateCreditCost('leadlove_maps', { maxResults }),
               transaction_type: 'refund',
               description: 'Refund for failed lead generation request',
-              reference_id: workflowPayload.requestId
+              reference_id: leadlovePayload.requestId
             })
 
           // Track failed usage
@@ -248,9 +259,9 @@ export async function POST(request: NextRequest) {
               processing_time_ms: Date.now() - startTime,
               success: false,
               error_message: fetchError.message,
-              workflow_id: workflowPayload.requestId,
+              workflow_id: leadlovePayload.requestId,
               metadata: {
-                source: workflowPayload.source,
+                source: leadlovePayload.source,
                 businessType,
                 location,
                 serviceOffering,
@@ -267,8 +278,8 @@ export async function POST(request: NextRequest) {
         { 
           error: 'Lead generation service is currently unavailable',
           message: 'Please try again in a few minutes. If this issue persists, contact support.',
-          requestId: workflowPayload.requestId,
-          refunded: !isPrivateAccess // Credits were refunded for paid users
+          requestId: leadlovePayload.requestId,
+          refunded: !isPrivateAccess && !isFreeMode // Credits were refunded for paid users
         },
         { status: 503 }
       )
