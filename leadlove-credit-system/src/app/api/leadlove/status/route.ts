@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     if (!workflowId) {
       return NextResponse.json(
-        { error: 'Workflow ID is required' },
+        { success: false, error: 'Workflow ID is required' },
         { status: 400 }
       )
     }
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       
       if (authError || !session?.user) {
         return NextResponse.json(
-          { error: 'Authentication required for web access' },
+          { success: false, error: 'Authentication required for web access' },
           { status: 401 }
         )
       }
@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
+        success: false,
         error: error.message || 'Internal server error',
         message: 'Failed to check workflow status.'
       },

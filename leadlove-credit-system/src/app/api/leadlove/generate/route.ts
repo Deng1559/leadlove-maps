@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!businessType || !location) {
       return NextResponse.json(
-        { error: 'Business type and location are required' },
+        { success: false, error: 'Business type and location are required' },
         { status: 400 }
       )
     }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       
       if (authError || !session?.user) {
         return NextResponse.json(
-          { error: 'Authentication required for web access' },
+          { success: false, error: 'Authentication required for web access' },
           { status: 401 }
         )
       }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
       if (profileError || !profile) {
         return NextResponse.json(
-          { error: 'User profile not found' },
+          { success: false, error: 'User profile not found' },
           { status: 404 }
         )
       }
@@ -73,12 +73,13 @@ export async function POST(request: NextRequest) {
       if (!hasEnoughCredits(profile.credits_available || 0, creditCost)) {
         return NextResponse.json(
           { 
+            success: false,
             error: 'Insufficient credits',
             required: creditCost,
             available: profile.credits_available || 0,
             message: `You need ${creditCost} credits to generate ${maxResults} leads. You have ${profile.credits_available || 0} credits available.`
           },
-          { status: 402 } // Payment Required
+          { status: 402 }
         )
       }
 
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       if (consumeError) {
         console.error('Error consuming credits:', consumeError)
         return NextResponse.json(
-          { error: 'Failed to process credit transaction' },
+          { success: false, error: 'Failed to process credit transaction' },
           { status: 500 }
         )
       }
@@ -276,10 +277,11 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(
         { 
+          success: false,
           error: 'Lead generation service is currently unavailable',
           message: 'Please try again in a few minutes. If this issue persists, contact support.',
           requestId: leadlovePayload.requestId,
-          refunded: !isPrivateAccess && !isFreeMode // Credits were refunded for paid users
+          refunded: !isPrivateAccess && !isFreeMode
         },
         { status: 503 }
       )
@@ -290,6 +292,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(
       { 
+        success: false,
         error: error.message || 'Internal server error',
         message: 'An unexpected error occurred. Please try again.'
       },
