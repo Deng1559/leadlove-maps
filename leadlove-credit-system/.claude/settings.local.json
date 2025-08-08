@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:leadlove-maps.lovable.app)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

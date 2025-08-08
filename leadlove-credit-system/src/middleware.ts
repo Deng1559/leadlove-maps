@@ -5,13 +5,7 @@ import type { NextRequest } from 'next/server'
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   
-  // AUTHENTICATION DISABLED FOR DEVELOPMENT/TESTING
-  // All routes are now accessible without authentication
-  console.log('🔓 Authentication middleware disabled - allowing all routes')
-  
-  return res
-  
-  /* ORIGINAL AUTHENTICATION CODE (COMMENTED OUT)
+  // SECURITY: RE-ENABLED AUTHENTICATION PROTECTION
   const supabase = createMiddlewareClient({ req, res })
 
   // Refresh session if expired - required for Server Components
@@ -34,12 +28,18 @@ export async function middleware(req: NextRequest) {
     '/api/webhooks/stripe',
   ]
 
-  // API routes that require authentication
+  // API routes that require authentication - EXPANDED FOR PHASE 2-4
   const protectedApiRoutes = [
     '/api/credits',
     '/api/usage',
     '/api/subscriptions',
     '/api/leadlove',
+    '/api/enrichment',
+    '/api/google-sheets',
+    '/api/google-drive', 
+    '/api/snov',
+    '/api/feedback',
+    '/api/roadmap',
   ]
 
   // Check if route is public
@@ -121,7 +121,6 @@ export async function middleware(req: NextRequest) {
   }
 
   return res
-  */
 }
 
 export const config = {
