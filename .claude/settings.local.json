@@ -5,7 +5,8 @@
       "WebFetch(domain:leadlove-maps.lovable.app)",
       "Bash(powershell:*)",
       "Bash(cmd /c \"git status\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(del \"G:\\AI - Coding Projects\\Telegram.GoogleMaps.Email.Enrichment.n8n\\vercel.json\")"
     ],
     "deny": []
   }

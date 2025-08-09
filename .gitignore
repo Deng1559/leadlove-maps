@@ -95,6 +95,7 @@ ehthumbs.db
 # Test output
 test-results/
 coverage/
+playwright-report/
 
 # Build artifacts
 build/
@@ -106,3 +107,42 @@ dist/
 
 # Git setup script
 git-setup.bat
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Supabase
+.supabase/
+
+# Legacy subdirectory (should be removed)
+leadlove-credit-system/
+
+# Old n8n system files (to be archived)
+Enhanced_*.json
+Mock_*.json
+Sample_*.json
+Apollo_*.md
+Complete_*.md
+DEPLOYMENT_*.md
+EMAIL_*.md
+SYSTEM_*.md
+TEST_*.md
+Warm_*.md
+Workflow_*.md
+Example_*.md
+build-*.md
+build-*.json
+environment-config.env
+frontend-integration.js
+planme.md
+troubleshooting-guide.md
+git-force-push.bat
+run-tests*.js
+run-tests*.bat
+test-*.js
+test-*.bat
+test-*.html
+test-*.md
