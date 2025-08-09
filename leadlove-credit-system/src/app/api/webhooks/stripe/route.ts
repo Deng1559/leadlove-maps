@@ -372,7 +372,7 @@ async function handleInvoicePaymentFailed(event: Stripe.Event, supabase: any) {
     console.error('Error updating user to past_due status:', userError)
   }
 
-  // TODO: Send notification email to user about failed payment
+  // Future enhancement: Send notification email to user about failed payment
   console.log(`Payment failed for user ${subscription.user_id}, status set to past_due`)
 }
 
@@ -388,6 +388,6 @@ async function handleTrialWillEnd(event: Stripe.Event, supabase: any) {
     return
   }
 
-  // TODO: Send notification email to user about trial ending
+  // Future enhancement: Send notification email to user about trial ending
   console.log(`Trial ending soon for user ${userId}`)
 }

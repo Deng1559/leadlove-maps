@@ -50,7 +50,10 @@ class LeadGeneratorAPI {
         throw new Error(response.error || 'Unknown error occurred');
       }
     } catch (error) {
-      console.error('Lead generation failed:', error);
+      // Log error for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Lead generation failed:', error);
+      }
       return {
         success: false,
         error: error.message,
@@ -69,7 +72,10 @@ class LeadGeneratorAPI {
       const response = await this.makeRequest(this.statusEndpoint, { workflowId });
       return response;
     } catch (error) {
-      console.error('Status check failed:', error);
+      // Log error for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Status check failed:', error);
+      }
       return {
         success: false,
         status: 'error',
@@ -106,7 +112,9 @@ class LeadGeneratorAPI {
 
         return await response.json();
       } catch (error) {
-        console.warn(`Request attempt ${attempt} failed:`, error.message);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(`Request attempt ${attempt} failed:`, error.message);
+        }
         
         if (attempt === this.maxRetries) {
           throw error;
@@ -149,7 +157,10 @@ class LeadGeneratorAPI {
       mixpanel.track(eventName, properties);
     }
     
-    console.log('Analytics event:', eventName, properties);
+    // Track analytics event (implement actual analytics service)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Analytics event:', eventName, properties);
+    }
   }
 
   /**
@@ -214,7 +225,10 @@ async function handleFormSubmit(form) {
     }
   } catch (error) {
     showErrorMessage('⚠️ An unexpected error occurred. Please try again.');
-    console.error('Form submission error:', error);
+    // Log form submission error
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Form submission error:', error);
+    }
   }
 }
 
@@ -264,7 +278,9 @@ async function pollForResults(workflowId, api) {
     } catch (error) {
       hideLoadingState();
       showErrorMessage('❌ Error checking results. Please try again.');
-      console.error('Polling error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Polling error:', error);
+      }
     }
   };
 
@@ -329,7 +345,10 @@ function showTroubleshootingSteps(steps) {
 
 function displayResults(leads) {
   // Results display implementation
-  console.log('Displaying results:', leads);
+  // Display lead results
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Displaying results:', leads);
+  }
   const resultsContainer = document.getElementById('results-container');
   if (resultsContainer) {
     resultsContainer.innerHTML = generateResultsHTML(leads);
@@ -375,12 +394,18 @@ function generateLeadCard(lead) {
 // Export functionality
 function exportToCSV() {
   // CSV export implementation
-  console.log('Exporting to CSV');
+  // Export functionality
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Exporting to CSV');
+  }
 }
 
 function openGoogleSheets() {
   // Open Google Sheets implementation
-  console.log('Opening Google Sheets');
+  // Google Sheets integration
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Opening Google Sheets');
+  }
 }
 
 // Make API class available globally

@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:github.com)",
       "WebFetch(domain:leadlove-maps.lovable.app)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(cmd /c \"git status\")",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
